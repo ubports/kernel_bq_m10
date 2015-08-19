@@ -34,6 +34,7 @@
 #include <linux/slab.h>
 #include <linux/compiler.h>
 #include <linux/pstore_ram.h>
+#include <linux/mtk_ram_console.h>
 
 #define RAMOOPS_KERNMSG_HDR "===="
 #define MIN_MEM_SIZE 4096UL
@@ -87,6 +88,7 @@ struct ramoops_context {
 	struct persistent_ram_zone *cprz;
 	struct persistent_ram_zone *fprz;
 	struct persistent_ram_zone *mprz;
+	struct persistent_ram_zone *bprz; /* simple lockless buffer console */
 	phys_addr_t phys_addr;
 	unsigned long size;
 	unsigned int memtype;
@@ -103,6 +105,8 @@ struct ramoops_context {
 	unsigned int console_read_cnt;
 	unsigned int ftrace_read_cnt;
 	unsigned int pmsg_read_cnt;
+	unsigned int bconsole_read_cnt;
+	unsigned int ipanic_read_cnt;
 	struct pstore_info pstore;
 };
 
@@ -117,6 +121,8 @@ static int ramoops_pstore_open(struct pstore_info *psi)
 	cxt->console_read_cnt = 0;
 	cxt->ftrace_read_cnt = 0;
 	cxt->pmsg_read_cnt = 0;
+	cxt->bconsole_read_cnt = 0;
+	cxt->ipanic_read_cnt = 0;
 	return 0;
 }
 
@@ -170,6 +176,22 @@ static ssize_t ramoops_pstore_read(u64 *id, enum pstore_type_id *type,
 	if (!prz_ok(prz))
 		prz = ramoops_get_next_prz(&cxt->cprz, &cxt->console_read_cnt,
 					   1, id, type, PSTORE_TYPE_CONSOLE, 0);
+	if (!prz_ok(prz)) {
+		prz = ramoops_get_next_prz(&cxt->bprz, &cxt->bconsole_read_cnt,
+					   1, id, type, PSTORE_TYPE_CONSOLE, 0);
+		pr_err("pstore: pstore_read bprz type: %d count %d id %llx\n", *type, cxt->bconsole_read_cnt, *id);
+		*id = 2;
+	}
+/*
+	if (!prz_ok(prz)) {
+		size = ipanic_kmsg_get_next(&cxt->ipanic_read_cnt, id, type, time, buf, psi);
+		pr_err("pstore: ipanic_kmsg_get %llx[size:%zx]\n", *id, size);
+		if (size) {
+			*id += cxt->max_dump_cnt;
+			return size;
+		}
+	}
+*/
 	if (!prz_ok(prz))
 		prz = ramoops_get_next_prz(&cxt->fprz, &cxt->ftrace_read_cnt,
 					   1, id, type, PSTORE_TYPE_FTRACE, 0);
@@ -178,7 +200,7 @@ static ssize_t ramoops_pstore_read(u64 *id, enum pstore_type_id *type,
 					   1, id, type, PSTORE_TYPE_PMSG, 0);
 	if (!prz_ok(prz))
 		return 0;
-
+	pr_err("pstore: ramoops_pstore_read  type: %d count %d id %llx\n", *type, *count, *id);
 	/* TODO(kees): Bogus time for the moment. */
 	time->tv_sec = 0;
 	time->tv_nsec = 0;
@@ -230,9 +252,15 @@ static int notrace ramoops_pstore_write_buf(enum pstore_type_id type,
 	size_t hlen;
 
 	if (type == PSTORE_TYPE_CONSOLE) {
-		if (!cxt->cprz)
-			return -ENOMEM;
-		persistent_ram_write(cxt->cprz, buf, size);
+		if (reason == 0) {
+			if (!cxt->cprz)
+				return -ENOMEM;
+			persistent_ram_write(cxt->cprz, buf, size);
+		} else {
+			if (!cxt->bprz)
+				return -ENOMEM;
+			persistent_ram_write(cxt->bprz, buf, size);
+		}
 		return 0;
 	} else if (type == PSTORE_TYPE_FTRACE) {
 		if (!cxt->fprz)
@@ -248,7 +276,12 @@ static int notrace ramoops_pstore_write_buf(enum pstore_type_id type,
 
 	if (type != PSTORE_TYPE_DMESG)
 		return -EINVAL;
-
+/*
+	if (reason == KMSG_DUMP_POWEROFF || reason == KMSG_DUMP_HALT || reason == KMSG_DUMP_RESTART) {
+		pr_err("pstore: ipanic_kmsg_hdr: reason %d, size:%zx part:%x, id:%llx\n", reason, size, part, *id);
+		return ipanic_kmsg_write(part, buf, size);
+	}
+*/
 	/* Out of the various dmesg dump types, ramoops is currently designed
 	 * to only store crash logs, rather than storing general kernel logs.
 	 */
@@ -464,7 +497,7 @@ static int ramoops_probe(struct platform_device *pdev)
 
 	paddr = cxt->phys_addr;
 
-	dump_mem_sz = cxt->size - cxt->console_size - cxt->ftrace_size
+	dump_mem_sz = cxt->size - cxt->console_size * 2 - cxt->ftrace_size
 			- cxt->pmsg_size;
 	err = ramoops_init_przs(dev, cxt, &paddr, dump_mem_sz);
 	if (err)
@@ -474,6 +507,11 @@ static int ramoops_probe(struct platform_device *pdev)
 			       cxt->console_size, 0);
 	if (err)
 		goto fail_init_cprz;
+
+	err = ramoops_init_prz(dev, cxt, &cxt->bprz, &paddr,
+			       cxt->console_size, 0);
+	if (err)
+		goto fail_init_bprz;
 
 	err = ramoops_init_prz(dev, cxt, &cxt->fprz, &paddr, cxt->ftrace_size,
 			       LINUX_VERSION_CODE);
@@ -532,6 +570,8 @@ fail_clear:
 fail_init_mprz:
 	kfree(cxt->fprz);
 fail_init_fprz:
+	kfree(cxt->bprz);
+fail_init_bprz:
 	kfree(cxt->cprz);
 fail_init_cprz:
 	ramoops_free_przs(cxt);
