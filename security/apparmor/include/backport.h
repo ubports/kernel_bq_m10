@@ -17,4 +17,7 @@
 #ifndef __AA_BACKPORT_H
 #define __AA_BACKPORT_H
 
+/* 3.16 backport emulate commit 1d4457f99928a968767f6405b4a1f50845aa15fd */
+#define task_no_new_privs(T) ((T)->no_new_privs)
+
 #endif /* __AA_BACKPORT_H */
