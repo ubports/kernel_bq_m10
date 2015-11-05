@@ -3561,6 +3561,9 @@ ret = pmic_config_interface(0x778,0x1,0x1,15); // [15:15]: RG_VREF18_ENB_MD;
     upmu_set_rg_deci_gdly_vref18_selb(1);
     upmu_set_rg_deci_gdly_sel_mode(1);
     upmu_set_rg_osr(3);
+#ifdef CONFIG_BQ_FHD_PROJECT
+    upmu_set_vproc_en(0);
+#endif
 
     #ifdef CONFIG_MTK_MT6333_SUPPORT
     // move to mt6333 driver

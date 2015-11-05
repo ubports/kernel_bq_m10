@@ -16,7 +16,7 @@
 #ifndef _OV5648MIPI_SENSOR_H
 #define _OV5648MIPI_SENSOR_H
 
-
+#define OV5648MIPI_USE_OTP
 typedef enum{
     IMGSENSOR_MODE_INIT,
     IMGSENSOR_MODE_PREVIEW,
@@ -111,6 +111,26 @@ typedef struct imgsensor_info_struct {
     kal_uint8  i2c_addr_table[5];    //record sensor support all write id addr, only supprt 4must end with 0xff
     kal_uint32  i2c_speed;     //i2c speed
 } imgsensor_info_struct;
+
+#ifdef OV5648MIPI_USE_OTP
+struct OV5648MIPI_otp_struct    // for shunyu module  hhs_0519
+{   
+kal_uint8 module_integrator_id;
+kal_uint8 lens_id;
+kal_uint16 rg_ratio;
+kal_uint16 bg_ratio;
+kal_uint8 user_data[2];
+kal_uint16 light_rg;
+kal_uint16 light_bg;	
+};
+#define RG_Typical 0x158   // xinyusheng
+#define BG_Typical 0x13b
+
+#define RG_Typical_1 350   // zhongliancheng
+#define BG_Typical_1 315
+//#define GB_GR_Typical 0x3FC
+#endif
+
 
 extern int iReadRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u8 * a_pRecvData, u16 a_sizeRecvData, u16 i2cId);
 extern int iWriteRegI2C(u8 *a_pSendData , u16 a_sizeSendData, u16 i2cId);

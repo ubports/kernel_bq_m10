@@ -168,7 +168,7 @@ static imgsensor_struct imgsensor = {
 static SENSOR_WINSIZE_INFO_STRUCT imgsensor_winsize_info[5]=
 {{ 2624, 1956,      0,    0, 2624, 1956, 1312,  978,      8,   4, 1296,  972,  4,    8, 1280,  960},  // Preview
  { 2624, 1956,      0,    0, 2624, 1956, 2624, 1956,     16,   6, 2592, 1944,  2,    2, 2560,  1920}, // capture
- { 2624, 1956,      0,    0, 2624, 1956, 2592, 1944,      0,   0, 1296,  972,  4,    8, 1280,  960},  // video
+ { 2624, 1956,      0,    0, 2624, 1956, 1312,  978,      8,   4, 1296,  972,  4,    8, 1280,  960},  // video
  { 2624, 1956,    336,  434, 1952, 1088, 1952, 1088,     16,   4, 1920, 1080,  0,    0, 1920,  1080}, //hight speed video
  { 2624, 1956,     16,  254, 2592, 1448, 1296,  724,      8,   2, 1280,  720,  0,    0, 1280,  720}}; // slim video
 
@@ -204,6 +204,307 @@ static void set_dummy(void)
     write_cmos_sensor(0x380d, imgsensor.line_length & 0xFF);
 
 }    /*    set_dummy  */
+
+#ifdef OV5648MIPI_USE_OTP
+//index: index of otp group.(1, 2)
+//return:	 ERROR: group index have invalid data
+//		 TRUE: group index has valid data
+//R/G and B/G ratio of typical camera module is defined here
+kal_uint32 RG_Ratio_Typical = RG_Typical;
+kal_uint32 BG_Ratio_Typical = BG_Typical;
+kal_uint16 OV5648MIPI_check_otp_wb(kal_uint16 index)
+{
+	kal_uint16 flag, i;
+	kal_uint16 rg, bg;
+	kal_uint16 temp;
+	if (index == 1)
+	{
+		// read otp --Bank 0
+		
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x00);
+		write_cmos_sensor(0x3d86, 0x0f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		
+		flag = read_cmos_sensor(0x3d05);
+		rg = read_cmos_sensor(0x3d07);
+		bg = read_cmos_sensor(0x3d08);
+	}
+	else if (index == 2)
+	{
+		// read otp --Bank 0
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x00);
+		write_cmos_sensor(0x3d86, 0x0f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		flag = read_cmos_sensor(0x3d0e);
+		// read otp --Bank 1
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x10);
+		write_cmos_sensor(0x3d86, 0x1f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		rg = read_cmos_sensor(0x3d00);
+		bg = read_cmos_sensor(0x3d01);
+	}
+	printk("honghaishen flag is %d",flag);
+	flag =flag &0x80;
+	// clear otp buffer
+	for (i=0;i<16;i++) {
+		write_cmos_sensor(0x3d00 + i, 0x00);
+	}
+	if (flag) {
+		printk("honghaishen flag is no ok \n");
+		return FALSE;
+	}
+	else
+	{
+		if (rg == 0  || bg == 0)
+		{
+			return FALSE;
+			printk("honghaishen flag bg and rg no ok \n");
+		}
+		else
+		{
+			return TRUE;
+		}
+	}
+}
+		
+//index:index of otp group.(1,2,3)
+//return:	0.
+kal_uint16 OV5648MIPI_read_otp_wb(kal_uint16 index, struct OV5648MIPI_otp_struct *otp_ptr)
+{
+	kal_uint16 i, temp;
+	// read otp into buffer
+	if (index == 1)
+	{
+		// read otp --Bank 0
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x00);
+		write_cmos_sensor(0x3d86, 0x0f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		(*otp_ptr).module_integrator_id = (read_cmos_sensor(0x3d05) & 0x7f);
+		(*otp_ptr).lens_id = read_cmos_sensor(0x3d06);
+		temp = read_cmos_sensor(0x3d0b);
+		(*otp_ptr).rg_ratio = (read_cmos_sensor(0x3d07)<<2) +( (temp>>6) & 0x03);
+		(*otp_ptr).bg_ratio = (read_cmos_sensor(0x3d08)<<2) +( (temp>>4) & 0x03);
+		(*otp_ptr).light_rg = (read_cmos_sensor(0x3d0c)<<2) + ((temp>>2) & 0x03);
+		(*otp_ptr).light_bg = (read_cmos_sensor(0x3d0d)<<2) +( temp & 0x03);
+		(*otp_ptr).user_data[0] = read_cmos_sensor(0x3d09);
+		(*otp_ptr).user_data[1] = read_cmos_sensor(0x3d0a);
+		printk("honghaishen_camera module_integrator_id is %d ",(*otp_ptr).module_integrator_id);
+		printk("honghaishen_camera lens_id is %d ",(*otp_ptr).lens_id);
+		printk("honghaishen_camera rg_ratio is %d ",(*otp_ptr).rg_ratio);
+		printk("honghaishen_camera bg_ratio is %d ",(*otp_ptr).bg_ratio);
+		printk("honghaishen_camera light_rg is %d ",(*otp_ptr).light_rg);
+		printk("honghaishen_camera light_bg is %d ",(*otp_ptr).light_bg);
+		printk("honghaishen_camera user_data[0]  is %d ",(*otp_ptr).user_data[0] );
+		printk("honghaishen_camera user_data[1] is %d ",(*otp_ptr).user_data[1]);	
+	}
+	else if (index == 2)
+	{
+		// read otp --Bank 0
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x00);
+		write_cmos_sensor(0x3d86, 0x0f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		(*otp_ptr).module_integrator_id = (read_cmos_sensor(0x3d0e) & 0x7f);
+		(*otp_ptr).lens_id = read_cmos_sensor(0x3d0f);
+		// read otp --Bank 1
+		write_cmos_sensor(0x3d84, 0xc0);
+		write_cmos_sensor(0x3d85, 0x10);
+		write_cmos_sensor(0x3d86, 0x1f);
+		write_cmos_sensor(0x3d81, 0x01);
+		msleep(50);
+		temp = read_cmos_sensor(0x3d04);
+		(*otp_ptr).rg_ratio = (read_cmos_sensor(0x3d00)<<2) + ((temp>>6) & 0x03);
+		(*otp_ptr).bg_ratio = (read_cmos_sensor(0x3d01)<<2) + ((temp>>4) & 0x03);
+		(*otp_ptr).light_rg = (read_cmos_sensor(0x3d05)<<2) + ((temp>>2) & 0x03);
+		(*otp_ptr).light_bg = (read_cmos_sensor(0x3d06)<<2) + (temp & 0x03);
+		(*otp_ptr).user_data[0] = read_cmos_sensor(0x3d02);
+		(*otp_ptr).user_data[1] = read_cmos_sensor(0x3d03);
+		printk("honghaishen_camera module_integrator_id is %d ",(*otp_ptr).module_integrator_id);
+		printk("honghaishen_camera lens_id is %d ",(*otp_ptr).lens_id);
+		printk("honghaishen_camera rg_ratio is %d ",(*otp_ptr).rg_ratio);
+		printk("honghaishen_camera bg_ratio is %d ",(*otp_ptr).bg_ratio);
+		printk("honghaishen_camera light_rg is %d ",(*otp_ptr).light_rg);
+		printk("honghaishen_camera light_bg is %d ",(*otp_ptr).light_bg);
+		printk("honghaishen_camera user_data[0]  is %d ",(*otp_ptr).user_data[0]);
+		printk("honghaishen_camera user_data[1] is %d ",(*otp_ptr).user_data[1]);	
+	}
+	for (i=0;i<16;i++) {
+		write_cmos_sensor(0x3d00 + i, 0x00);
+	}
+	return 0;
+}
+         			
+//R_gain: red gain of sensor AWB, 0x400 = 1
+//G_gain: green gain of sensor AWB, 0x400 = 1
+//B_gain: blue gain of sensor AWB, 0x400 = 1
+//reutrn 0
+kal_uint16 OV5648MIPI_update_wb_gain(kal_uint32 R_gain, kal_uint32 G_gain, kal_uint32 B_gain)
+{
+    printk("honghaishen R_gain[%x] G_gain[%x] B_gain[%x]", R_gain, G_gain, B_gain);
+
+	if(R_gain > 0x400)
+	{
+		write_cmos_sensor(0x5186, R_gain >> 8);
+		write_cmos_sensor(0x5187, (R_gain & 0x00FF));
+	}
+    
+	if(G_gain > 0x400)
+	{
+		write_cmos_sensor(0x5188, G_gain >> 8);
+		write_cmos_sensor(0x5189, (G_gain & 0x00FF));
+	}
+    
+	if(B_gain > 0x400)
+	{
+		write_cmos_sensor(0x518a, B_gain >> 8);
+		write_cmos_sensor(0x518b, (B_gain & 0x00FF));
+	}
+    
+	return 0;
+}
+
+kal_uint16 read_otp_module_id(void)
+{	
+	struct OV5648MIPI_otp_struct current_otp;
+	kal_uint32 i, otp_index = 3;
+	kal_uint32 R_gain, B_gain, G_gain, G_gain_R,G_gain_B;
+	kal_uint32 rg, bg;
+
+    // R/G and B/G of current camera module is read out from sensor OTP
+	// check first wb OTP with valid OTP
+	// Have two groups otp data, Group 1 & Group 2, read group 2 OTP data first
+	write_cmos_sensor(0x0100, 0x01);
+	msleep(20);
+	for(i = 1; i <= 2; i++)
+	{
+    	if(OV5648MIPI_check_otp_wb(i))
+		{
+			otp_index = i;
+			break;
+		}
+	}
+	if(otp_index > 2)
+	{  
+		//no valid wb OTP data
+	 	printk("no valid wb OTP data!");
+		return 1;
+	}
+	printk("honghaishen_camera index is %d",otp_index);
+	OV5648MIPI_read_otp_wb(otp_index, &current_otp);
+	return current_otp.module_integrator_id;
+}
+
+
+//call this function after OV5648 initialization
+//return value:	0: Update success
+//			      1: No OTP
+kal_uint16 update_otp(void)
+{	
+	struct OV5648MIPI_otp_struct current_otp;
+	kal_uint32 i, otp_index = 3;
+	kal_uint32 R_gain, B_gain, G_gain, G_gain_R,G_gain_B;
+	kal_uint32 rg, bg;
+
+    // R/G and B/G of current camera module is read out from sensor OTP
+	// check first wb OTP with valid OTP
+	// Have two groups otp data, Group 1 & Group 2, read group 2 OTP data first
+		msleep(20);
+	for(i = 1; i <= 2; i++)
+	{
+    	if(OV5648MIPI_check_otp_wb(i))
+		{
+			otp_index = i;
+			break;
+		}
+	}
+	if(otp_index > 2)
+	{  
+		//no valid wb OTP data
+	 	printk("no valid wb OTP data!");
+		return 1;
+	}
+	printk("honghaishen_camera index is %d",otp_index);
+	OV5648MIPI_read_otp_wb(otp_index, &current_otp);
+	if(current_otp.module_integrator_id != 0)   // haishen_zanshi
+	{
+		RG_Ratio_Typical = RG_Typical_1;
+       BG_Ratio_Typical = BG_Typical_1;
+			
+	}
+    
+	rg=current_otp.rg_ratio;
+	bg=current_otp.bg_ratio;
+
+	//calculate G gain
+	//0x400 =1xgain
+	if(bg < BG_Ratio_Typical)
+	{
+		if(rg < RG_Ratio_Typical)
+		{
+			//current_opt.bg_ratio < BG_Ratio_Typical &&
+			//cuttent_otp.rg < RG_Ratio_Typical
+			G_gain = 0x400;
+			B_gain = 0x400 * BG_Ratio_Typical /bg;
+			R_gain = 0x400 * RG_Ratio_Typical /rg;
+		}
+		else
+		{
+			//current_otp.bg_ratio < BG_Ratio_Typical &&
+	       	//current_otp.rg_ratio >= RG_Ratio_Typical
+	       	R_gain = 0x400;
+			G_gain = 0x400 * rg / RG_Ratio_Typical;
+			B_gain = G_gain * BG_Ratio_Typical /bg;		        
+		}
+	}
+	else
+	{
+		if(rg < RG_Ratio_Typical)
+		{
+			//current_otp.bg_ratio >= BG_Ratio_Typical &&
+	       	//current_otp.rg_ratio < RG_Ratio_Typical
+	       	B_gain = 0x400;
+			G_gain = 0x400 * bg/ BG_Ratio_Typical;
+			R_gain = G_gain * RG_Ratio_Typical / rg;					
+		}
+		else
+		{
+			//current_otp.bg_ratio >= BG_Ratio_Typical &&
+        	//current_otp.rg_ratio >= RG_Ratio_Typical
+        	G_gain_B = 0x400 * bg / BG_Ratio_Typical;
+	    	G_gain_R = 0x400 * rg / RG_Ratio_Typical;
+			
+			if(G_gain_B > G_gain_R)
+			{
+				B_gain = 0x400;
+				G_gain = G_gain_B;
+				R_gain = G_gain * RG_Ratio_Typical / rg;
+			}
+			else
+			{
+				R_gain = 0x400;
+				G_gain = G_gain_R;
+				B_gain = G_gain * BG_Ratio_Typical / bg;
+			}			        
+		}			
+	}
+    
+	//write sensor wb gain to register
+	OV5648MIPI_update_wb_gain(R_gain, G_gain, B_gain);
+	//success
+	return 0;
+}
+
+#endif
+
 
 static kal_uint32 return_sensor_id(void)
 {
@@ -682,6 +983,10 @@ static void sensor_init(void)
     write_cmos_sensor(0x4837, 0x17); // MIPI global timing
 
     write_cmos_sensor(0x0100, 0x01); // wake up from software sleep
+    #ifdef OV5648MIPI_USE_OTP
+    //wb otp update
+    update_otp();
+#endif
 }    /*    MIPI_sensor_Init  */
 
 

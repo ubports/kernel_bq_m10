@@ -297,6 +297,12 @@ endmenu
 
 menu "Kernel Features"
 
+config BQ_FHD_PROJECT
+	bool "Enable BQ FHD config"
+	default n
+	help
+	  Select support malata FHD project.
+
 config ARM64_64K_PAGES
 	bool "Enable 64KB pages support"
 	help

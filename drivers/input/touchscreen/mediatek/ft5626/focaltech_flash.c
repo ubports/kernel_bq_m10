@@ -2418,7 +2418,7 @@ int fts_ctpm_auto_upgrade(struct i2c_client *client)
 
 	fts_read_reg(client, FTS_REG_FW_VER, &uc_tp_fm_ver);
 #ifdef TPD_HAVE_BUTTON
-	if(uc_tp_fm_ver >= 0x80)
+	if((uc_tp_fm_ver >= 0x80) || (uc_tp_fm_ver == 0x0))
 		btn_fw_flag = 1;
 #endif
 	uc_host_fm_ver = fts_ctpm_get_i_file_ver();

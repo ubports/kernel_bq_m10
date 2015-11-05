@@ -297,12 +297,13 @@ struct fts_ts_data {
 //#define CONFIG_TOUCHPANEL_PROXIMITY_SENSOR
 #define CUST_CHIP_ID	0x58
 #define CHANGE_THRESHOLD_IN_CHARGE
+#define TPD_DOUBLE_CLICK_WAKEUP
 
 static unsigned char CTPM_FW[] = {
-	#include "FT_Upgrade_App_0x18.i"
+	#include "FT_Upgrade_App_0x1D.i"
 };
 static unsigned char CTPM_FW_BTN[] = {
-	#include "FT_Upgrade_App_0x83.i"
+	#include "FT_Upgrade_App_0x89.i"
 };
 
 extern struct i2c_client *fts_i2c_client;

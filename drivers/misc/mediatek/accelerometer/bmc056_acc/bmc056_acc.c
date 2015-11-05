@@ -2237,13 +2237,89 @@ static long bma255_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned 
 	return err;
 }
 
+#ifdef CONFIG_COMPAT
+static long bma255_compat_ioctl(struct file *file, unsigned int cmd,  unsigned long arg)
+{
+	long err = 0;
 
+	void __user *arg32 = compat_ptr(arg);
+
+	if (!file->f_op || !file->f_op->unlocked_ioctl)
+		return -ENOTTY;
+
+	switch (cmd)
+	{
+		case COMPAT_GSENSOR_IOCTL_READ_SENSORDATA:
+			if (arg32 == NULL)
+			{
+				err = -EINVAL;
+				break;
+			}
+
+			err = file->f_op->unlocked_ioctl(file, GSENSOR_IOCTL_READ_SENSORDATA, arg32);
+			if (err){
+				GSE_ERR("GSENSOR_IOCTL_READ_SENSORDATA unlocked_ioctl failed.");
+				return err;
+			}
+			break;
+
+		case COMPAT_GSENSOR_IOCTL_SET_CALI:
+			if (arg32 == NULL)
+			{
+			err = -EINVAL;
+			break;
+			}
+			err = file->f_op->unlocked_ioctl(file, GSENSOR_IOCTL_SET_CALI, (unsigned long)arg32);
+			if (err){
+			GSE_ERR("GSENSOR_IOCTL_SET_CALI unlocked_ioctl failed.");
+			return err;
+			}
+			break;
+
+		case COMPAT_GSENSOR_IOCTL_GET_CALI:
+			if (arg32 == NULL)
+			{
+			err = -EINVAL;
+			break;
+			}
+			err = file->f_op->unlocked_ioctl(file, GSENSOR_IOCTL_GET_CALI, (unsigned long)arg32);
+			if (err){
+			GSE_ERR("GSENSOR_IOCTL_GET_CALI unlocked_ioctl failed.");
+			return err;
+			}
+			break;
+
+		case COMPAT_GSENSOR_IOCTL_CLR_CALI:
+			if (arg32 == NULL)
+			{
+			err = -EINVAL;
+			break;
+			}
+			err = file->f_op->unlocked_ioctl(file, GSENSOR_IOCTL_CLR_CALI, (unsigned long)arg32);
+			if (err){
+			GSE_ERR("GSENSOR_IOCTL_CLR_CALI unlocked_ioctl failed.");
+			return err;
+			}
+			break;
+
+		default:
+			GSE_ERR("unknown IOCTL: 0x%08x\n", cmd);
+			err = -ENOIOCTLCMD;
+			break;
+	}
+
+	return err;
+}
+#endif
 /*----------------------------------------------------------------------------*/
 static struct file_operations bma255_fops = {
 	//.owner = THIS_MODULE,
 	.open = bma255_open,
 	.release = bma255_release,
 	.unlocked_ioctl = bma255_unlocked_ioctl,
+	#ifdef CONFIG_COMPAT
+	.compat_ioctl = bma255_compat_ioctl,
+	#endif
 };
 /*----------------------------------------------------------------------------*/
 static struct miscdevice bma255_device = {

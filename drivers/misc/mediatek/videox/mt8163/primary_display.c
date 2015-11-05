@@ -1761,9 +1761,9 @@ static int _DL_switch_to_DC_fast(void)
 
 	// 3.modify interface path handle to new scenario(rdma->dsi)
 	if (primary_display_is_video_mode() == 1) {
-		cmdqRecEnablePrefetch(pgc->cmdq_handle_config);
+		/* cmdqRecEnablePrefetch(pgc->cmdq_handle_config); */
 		disp_set_sodi(0, pgc->cmdq_handle_config);
-		cmdqRecDisablePrefetch(pgc->cmdq_handle_config);
+		/* cmdqRecDisablePrefetch(pgc->cmdq_handle_config); */
 	}
 	dpmgr_modify_path(pgc->dpmgr_handle, DDP_SCENARIO_PRIMARY_RDMA0_COLOR0_DISP, pgc->cmdq_handle_config, primary_display_is_video_mode()?DDP_VIDEO_MODE:DDP_CMD_MODE);
 	// 4.config rdma from directlink mode to memory mode
