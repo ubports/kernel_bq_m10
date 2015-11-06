@@ -1081,6 +1081,7 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 
 	if (rt_rq->rt_time > runtime) {
 		struct rt_bandwidth *rt_b = sched_rt_bandwidth(rt_rq);
+#ifdef CONFIG_RT_GROUP_SCHED
 		int cpu = rq_cpu(rt_rq->rq);
 
 		printk_deferred("sched: cpu=%d rt_time %llu <-> runtime"
@@ -1093,6 +1094,7 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 			     per_cpu(exec_delta_time, cpu),
 			     per_cpu(clock_task, cpu),
 			     per_cpu(exec_start, cpu));
+#endif
 		/*
 		 * Don't actually throttle groups that have no runtime assigned
 		 * but accrue some time due to boosting.
@@ -1103,6 +1105,7 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 
 			rt_rq->rt_throttled = 1;
 
+#ifdef CONFIG_RT_GROUP_SCHED
 		//	if (!once) {
 		//		once = true;
 				printk_deferred("sched: RT throttling activated cpu=%d\n",
@@ -1110,6 +1113,7 @@ static int sched_rt_runtime_exceeded(struct rt_rq *rt_rq)
 		//	}
 			mt_sched_printf(sched_rt_info, "cpu=%d rt_throttled=%d", 
 				cpu, rt_rq->rt_throttled);
+#endif
 
 		} else {
 			/*
