@@ -1147,7 +1147,7 @@ static int __init mtkts_bts_init(void)
 		entry = proc_create("tzbts", S_IRUGO | S_IWUSR | S_IWGRP, mtkts_AP_dir, &mtkts_AP_fops);
 		if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else // kernel ver
             entry->gid = 1000;
 #endif // kernel ver
@@ -1156,7 +1156,7 @@ static int __init mtkts_bts_init(void)
 		entry = proc_create("tzbts_param", S_IRUGO | S_IWUSR | S_IWGRP, mtkts_AP_dir, &mtkts_AP_param_fops);
 		if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else // kernel ver
             entry->gid = 1000;
 #endif // kernel ver

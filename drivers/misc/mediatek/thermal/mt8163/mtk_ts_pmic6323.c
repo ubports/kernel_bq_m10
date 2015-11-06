@@ -633,7 +633,7 @@ static int __init mtktspmic_init(void)
     entry = proc_create("tzpmic", S_IRUGO | S_IWUSR | S_IWGRP, mtktspmic_dir, &mtktspmic_fops);
     if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-        proc_set_user(entry, 0, 1000);
+        proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else
         entry->gid = 1000;
 #endif

@@ -4315,7 +4315,7 @@ static int binder_ioctl_set_ctx_mgr(struct file *filp, struct binder_thread
 #ifdef BINDER_MONITOR
     strcpy(binder_context_mgr_node->name, "servicemanager");
     pr_debug("%d:%d set as servicemanager uid %d\n",
-            proc->pid, thread->pid, binder_context_mgr_uid);
+            proc->pid, thread->pid, __kuid_val(binder_context_mgr_uid));
 #endif
     binder_context_mgr_node->local_weak_refs++;
     binder_context_mgr_node->local_strong_refs++;

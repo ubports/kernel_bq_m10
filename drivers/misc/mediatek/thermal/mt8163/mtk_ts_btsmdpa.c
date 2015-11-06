@@ -1135,7 +1135,7 @@ static int __init mtkts_btsmdpa_init(void)
 		entry = proc_create("tzbtspa", S_IRUGO | S_IWUSR | S_IWGRP, mtkts_btsmdpa_dir, &mtkts_btsmdpa_fops);
 		if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else // kernel ver
             entry->gid = 1000;
 #endif // kernel ver
@@ -1144,7 +1144,7 @@ static int __init mtkts_btsmdpa_init(void)
 		entry = proc_create("tzbtspa_param", S_IRUGO | S_IWUSR | S_IWGRP, mtkts_btsmdpa_dir, &mtkts_btsmdpa_param_fops);
 		if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else // kernel ver
             entry->gid = 1000;
 #endif // kernel ver

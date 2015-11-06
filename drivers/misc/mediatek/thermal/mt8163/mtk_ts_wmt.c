@@ -1274,7 +1274,7 @@ static int wmt_tm_proc_register(void)
 				&_wmt_tm_fops);
         if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else
             entry->gid = 1000;
 #endif
@@ -1285,7 +1285,7 @@ static int wmt_tm_proc_register(void)
 				&_tm_pid_fops);
         if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else
             entry->gid = 1000;
 #endif
@@ -1296,7 +1296,7 @@ static int wmt_tm_proc_register(void)
 				&_wmt_val_fops);
         if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else
             entry->gid = 1000;
 #endif
@@ -1309,7 +1309,7 @@ static int wmt_tm_proc_register(void)
 				&_wfd_stat_fops);
         if (entry) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 10, 0)
-            proc_set_user(entry, 0, 1000);
+            proc_set_user(entry, GLOBAL_ROOT_UID, KGIDT_INIT(1000));
 #else
             entry->gid = 1000;
 #endif
