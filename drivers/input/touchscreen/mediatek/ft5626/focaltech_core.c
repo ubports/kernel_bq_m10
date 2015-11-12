@@ -117,6 +117,21 @@ struct i2c_client *fts_i2c_client = NULL;
 struct input_dev *fts_input_dev=NULL;
 struct task_struct *thread = NULL;
 
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+static struct class *ft5626_class = NULL;
+int double_tap_wakeup_enable;
+
+#define FTS_GESTURE_SWITCH_REG          0xd0
+#define FTS_GESTURE_DOUBLECLICK_REG     0xd1
+#define FTS_GESTURE_OUTPUT_REG          0xd3
+#define FTS_GESTURE_DOUBLECLICK_ID	    0x24
+
+#define FTS_GESTURE_SWITCH_OPEN	        1
+#define FTS_GESTURE_SWITCH_CLOSE	    0
+
+static unsigned int gesture_switch = FTS_GESTURE_SWITCH_CLOSE;
+#endif
+
 //for tp esd check
 #define GTP_ESD_PROTECT  0
 #if GTP_ESD_PROTECT
@@ -658,6 +673,34 @@ static  void tpd_up(int x, int y,int *count)
 * Output: no
 * Return: success nonzero
 ***********************************************************************/
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+	 static void tpd_report_gesture(int gesture_id)
+	 {
+		 if (FTS_GESTURE_DOUBLECLICK_ID == gesture_id)
+		 {
+			 TPD_DMESG("TP double click detect, report power key.\n");
+	 
+			 gesture_switch = FTS_GESTURE_SWITCH_CLOSE;
+	 
+			 input_report_key(tpd->dev, KEY_POWER, 1);
+			 input_sync(tpd->dev);
+			 input_report_key(tpd->dev, KEY_POWER, 0);
+			 input_sync(tpd->dev);
+		 }
+	 }
+	 
+	 static int tpd_read_gesture_data(void)
+	 {
+		 unsigned char temp = 0;
+	 
+		 fts_read_reg(fts_i2c_client, FTS_GESTURE_OUTPUT_REG, &temp);
+	 
+		 tpd_report_gesture(temp);
+	 
+		 return -1;
+	 }
+#endif
+
 static int tpd_touchinfo(struct touch_info *cinfo, struct touch_info *pinfo)
 {
 	int i = 0;
@@ -1088,6 +1131,10 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
 	int i=0;
 	int ret = 0;
 
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+	u8 wake_state = 0;
+#endif
+
 	struct sched_param param = { .sched_priority = RTPM_PRIO_TPD };
 	sched_setscheduler(current, SCHED_RR, &param);
  
@@ -1107,6 +1154,27 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
 			 
 		 set_current_state(TASK_RUNNING);
 		 //printk("tpd touch_event_handler\n");
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+		 //printk("xkpeng gesture_switch=%d double_tap_wakeup_enable=%d\n",gesture_switch,double_tap_wakeup_enable);
+		 if (FTS_GESTURE_SWITCH_OPEN == gesture_switch && double_tap_wakeup_enable)
+		 {
+			 if (fts_read_reg(fts_i2c_client, FTS_GESTURE_SWITCH_REG, &wake_state) < 0)
+			 {
+				 TPD_DMESG("resume I2C transfer error, line: %d\n", __LINE__);
+			 }
+			 else
+			 {
+				 if (FTS_GESTURE_SWITCH_OPEN == wake_state)
+				 {
+					 printk("touch_event_handler 0xd0 = 1 \r\n");
+					 tpd_read_gesture_data();
+					 continue;
+				 }
+			 }
+		 }
+		 //printk("xkpeng wake_state=%d\n",wake_state);
+#endif
+
 	 	 #if FTS_GESTRUE_EN
 			//i2c_smbus_read_i2c_block_data(fts_i2c_client, 0xd0, 1, &state);
 			ret = fts_read_reg(fts_i2c_client, 0xd0,&state);
@@ -1184,7 +1252,7 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
 		{
 			if (tpd_touchinfo(&cinfo, &pinfo)) 
 			{
-		    		printk("tpd point_num = %d\n",point_num);
+		    		//printk("tpd point_num = %d\n",point_num);
 				TPD_DEBUG_SET_TIME;
 				if(point_num >0) 
 				{
@@ -1447,7 +1515,11 @@ void fts_reset_tp(int HighOrLow)
     		queue_delayed_work(gtp_esd_check_workqueue, &gtp_esd_check_work, TPD_ESD_CHECK_CIRCLE);
 	#endif
 
-	
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+		gesture_switch = FTS_GESTURE_SWITCH_CLOSE;
+		input_set_capability(tpd->dev, EV_KEY, KEY_POWER);
+#endif
+
 	#if FTS_GESTRUE_EN
 		fts_Gesture_init(tpd->dev);		
 	#endif
@@ -1465,6 +1537,32 @@ void fts_reset_tp(int HighOrLow)
    	return 0;
    
  }
+
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+static ssize_t double_tap_wakeup_write(struct class *cls, struct class_attribute *attr, const char *_buf, size_t _count)
+{
+	int value = simple_strtoul(_buf, NULL, 16);
+
+	if (value != 0 && value != 1)
+	{
+		printk("[FTS]: double_tap_wakeup_write, invalid value.\n");
+		return _count;
+	}
+	else
+	{
+		double_tap_wakeup_enable = value;
+	}
+	printk("[FTS]: double_tap_wakeup has been writed to %d.\n", value);
+	return _count;
+}
+
+static ssize_t double_tap_wakeup_read(struct class *cls, struct class_attribute *attr, char *_buf)
+{
+	return sprintf(_buf, "%d\n", double_tap_wakeup_enable);
+}
+static CLASS_ATTR(double_tap_wakeup, 0600, double_tap_wakeup_read, double_tap_wakeup_write);
+#endif
+
 /************************************************************************
 * Name: tpd_remove
 * Brief: remove driver/channel
@@ -1751,6 +1849,28 @@ FOCAL_RESET_A3_REGISTER:
 	#endif  
 	TPD_DMESG("end %s, %d\n", __FUNCTION__, __LINE__);  
 	tpd_type_cap = 1;
+
+#if defined(TPD_DOUBLE_CLICK_WAKEUP)
+	int retval = -1;
+	ft5626_class = class_create(THIS_MODULE, "ft5626");
+	if (ft5626_class == NULL)
+	{
+		printk("create class ft5x06 failed!\n");
+		return -1;
+	}
+	double_tap_wakeup_enable = 0;
+	printk("[FTS]: double tap wakeup enabled.\n");
+	retval = class_create_file(ft5626_class, &class_attr_double_tap_wakeup);
+	if (retval != 0)
+	{
+		printk("create double_tap_wakeup file failed!\n");
+		goto failed_create_class;
+	}
+	return 0; 
+
+failed_create_class:
+	class_destroy(ft5626_class);
+#endif
     	return 0; 
  }
  /************************************************************************
@@ -1789,6 +1909,18 @@ FOCAL_RESET_A3_REGISTER:
 			}
 		}
 	#endif	
+
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+		char gesture_close = FTS_GESTURE_SWITCH_CLOSE;
+	
+		TPD_DMESG("tpd_resume gesture_switch = %d \r\n", gesture_switch);
+	
+		if (FTS_GESTURE_SWITCH_OPEN == gesture_switch)
+		{
+			gesture_switch = FTS_GESTURE_SWITCH_CLOSE;
+			fts_write_reg(fts_i2c_client, FTS_GESTURE_SWITCH_REG, gesture_close);
+		}
+#endif
 
  	#if FTS_GESTRUE_EN
     		fts_write_reg(fts_i2c_client,0xD0,0x00);
@@ -1853,6 +1985,34 @@ FOCAL_RESET_A3_REGISTER:
 		return;
 	}
 	#endif
+
+#ifdef TPD_DOUBLE_CLICK_WAKEUP
+	char state = 0;
+	char gesture_open = FTS_GESTURE_SWITCH_OPEN;
+	char gesture_data = 0x1f;
+
+	gesture_switch = FTS_GESTURE_SWITCH_OPEN;
+
+	TPD_DMESG("tpd_suspend gesture_switch = %d \r\n", gesture_switch);
+
+	if (FTS_GESTURE_SWITCH_OPEN == gesture_switch && double_tap_wakeup_enable)
+	{
+		fts_write_reg(fts_i2c_client, FTS_GESTURE_SWITCH_REG, gesture_open);
+		fts_write_reg(fts_i2c_client, FTS_GESTURE_DOUBLECLICK_REG, gesture_data);
+		fts_read_reg(fts_i2c_client, FTS_GESTURE_SWITCH_REG, &state);
+
+		if (FTS_GESTURE_SWITCH_CLOSE == state)
+		{
+			gesture_switch = FTS_GESTURE_SWITCH_CLOSE;
+			TPD_DMESG("tpd_suspend read 0xd0 = 0, gesture_switch = %d \r\n", gesture_switch);
+		}
+		else
+		{
+			TPD_DMESG("tpd_suspend read 0xd0 = 1, gesture_switch = %d \r\n", gesture_switch);
+			return;
+		}
+	}
+#endif
 
 	#if FTS_GESTRUE_EN
         	fts_write_reg(fts_i2c_client, 0xd0, 0x01);

@@ -979,6 +979,14 @@ static inline void check_cable_type(void)
 		ACCDET_DEBUG("[Accdet]cable type:[%s], status switch:[%s]->[%s]\n",
         accdet_report_string[cable_type], accdet_status_string[pre_status], 
         accdet_status_string[accdet_status]);
+
+		/*start-xmyyq-20151022-change micbias1 from PWM to DC*/
+		if (NO_DEVICE != cable_type) {
+			ACCDET_DEBUG("[Accdet] change micbias1 from PWM to DC\n");
+			pmic_pwrap_write(ACCDET_PWM_WIDTH, REGISTER_VALUE(cust_headset_settings->pwm_width));
+			pmic_pwrap_write(ACCDET_PWM_THRESH, REGISTER_VALUE(cust_headset_settings->pwm_width));
+		}
+		/*end-xmyyq-20151022-change micbias1 from PWM to DC*/
 } 
 static void accdet_work_callback(struct work_struct *work)
 {

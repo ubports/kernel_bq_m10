@@ -123,9 +123,9 @@ void AudDrv_Clk_Power_On(void)
 {
     volatile uint32 *AFE_Register = (volatile uint32 *)Get_Afe_Powertop_Pointer();
     volatile uint32 val_tmp;
-    printk("%s", __func__);
-    val_tmp = 0xd;
-    mt_reg_sync_writel(val_tmp, AFE_Register);
+    printk("%s\n", __func__);
+    //val_tmp = 0xd;
+    //mt_reg_sync_writel(val_tmp, AFE_Register);
 }
 
 void AudDrv_Clk_Power_Off(void)
@@ -145,28 +145,40 @@ void AudDrv_Clk_Power_Off(void)
 void AudDrv_Clk_On(void)
 {
     unsigned long flags;
-    PRINTK_AUD_CLK("+AudDrv_Clk_On, Aud_AFE_Clk_cntr:%d \n",Aud_AFE_Clk_cntr);
+    PRINTK_AUD_CLK("+AudDrv_Clk_On, Aud_AFE_Clk_cntr:%d\n",Aud_AFE_Clk_cntr);
     spin_lock_irqsave(&auddrv_Clk_lock, flags);
     if (Aud_AFE_Clk_cntr == 0)
     {
-        printk("-----------AudDrv_Clk_On, Aud_AFE_Clk_cntr:%d \n", Aud_AFE_Clk_cntr);
+        printk("-----------AudDrv_Clk_On, Aud_AFE_Clk_cntr:%d\n", Aud_AFE_Clk_cntr);
 #ifdef PM_MANAGER_API
         if (enable_clock(MT_CG_INFRA_AUDIO, "AUDIO"))
         {
-            PRINTK_AUD_CLK("%s Aud enable_clock MT_CG_INFRA_AUDIO fail", __func__);
+            printk("%s Aud enable_clock MT_CG_INFRA_AUDIO fail\n", __func__);
         }
+
+        PRINTK_AUD_CLK("enable SYS_AUD!\n");
+        if (enable_subsys(SYS_AUD, "AUDIO")) {
+            printk("%s Aud enable_subsys SYS_AUD fail\n", __func__);
+        }
+        mdelay(10);
+
+        PRINTK_AUD_CLK("enable MT_CG_AUDIO_AFE!\n");
         if (enable_clock(MT_CG_AUDIO_AFE, "AUDIO"))
         {
-            PRINTK_AUD_CLK("%s Aud enable_clock MT_CG_AUDIO_AFE fail", __func__);
+            printk("%s Aud enable_clock MT_CG_AUDIO_AFE fail\n", __func__);
         }
-        #if 0 //Todo  now clock mgr not ready, we directly set register
+		
+        #if 1 //Todo  now clock mgr not ready, we directly set register
+        PRINTK_AUD_CLK("enable MT_CG_AUDIO_DAC!\n");
         if (enable_clock(MT_CG_AUDIO_DAC, "AUDIO"))
         {
-            PRINTK_AUD_CLK("%s MT_CG_AUDIO_DAC fail", __func__);
+            printk("%s MT_CG_AUDIO_DAC fail", __func__);
         }
+		
+        PRINTK_AUD_CLK("enable MT_CG_AUDIO_DAC_PREDIS!\n");
         if (enable_clock(MT_CG_AUDIO_DAC_PREDIS, "AUDIO"))
         {
-            PRINTK_AUD_CLK("%s MT_CG_AUDIO_DAC_PREDIS fail", __func__);
+            printk("%s MT_CG_AUDIO_DAC_PREDIS fail", __func__);
         }
         #else
         Afe_Set_Reg(AUDIO_TOP_CON0, 0, 0x06000000);
@@ -192,27 +204,40 @@ void AudDrv_Clk_Off(void)
     {
         printk("------------AudDrv_Clk_Off, Aud_AFE_Clk_cntr:%d \n", Aud_AFE_Clk_cntr);
         {
-            // Disable AFE clock
 #ifdef PM_MANAGER_API
-            if (disable_clock(MT_CG_AUDIO_AFE, "AUDIO"))
-            {
-                PRINTK_AUD_CLK("%s disable_clock MT_CG_AUDIO_AFE fail", __func__);
-            }
-            #if 0 //Todo  now clock mgr not ready, we directly set register
+            #if 1 //Todo  now clock mgr not ready, we directly set register
+            PRINTK_AUD_CLK("disable MT_CG_AUDIO_DAC!\n");
             if (disable_clock(MT_CG_AUDIO_DAC, "AUDIO"))
             {
-                PRINTK_AUD_CLK("%s MT_CG_AUDIO_DAC fail", __func__);
+                printk("%s MT_CG_AUDIO_DAC fail", __func__);
             }
+			
+            PRINTK_AUD_CLK("disable MT_CG_AUDIO_DAC_PREDIS!\n");
             if (disable_clock(MT_CG_AUDIO_DAC_PREDIS, "AUDIO"))
             {
-                PRINTK_AUD_CLK("%s MT_CG_AUDIO_DAC_PREDIS fail", __func__);
+                printk("%s MT_CG_AUDIO_DAC_PREDIS fail", __func__);
             }
             #else
-            Afe_Set_Reg(AUDIO_TOP_CON0, 0x06000000, 0x06000000);
+			Afe_Set_Reg(AUDIO_TOP_CON0, 0x06000000, 0x06000000);
             #endif
+
+            // Disable AFE clock
+            PRINTK_AUD_CLK("disable MT_CG_AUDIO_AFE!\n");
+            if (disable_clock(MT_CG_AUDIO_AFE, "AUDIO"))
+            {
+                printk("%s disable_clock MT_CG_AUDIO_AFE fail", __func__);
+            }
+
+            mdelay(10);
+            PRINTK_AUD_CLK("disable SYS_AUD!\n");
+            if (disable_subsys(SYS_AUD, "AUDIO")) {
+                printk("%s Aud disable_subsys SYS_AUD fail\n", __func__);
+            }
+			
+            PRINTK_AUD_CLK("disable MT_CG_INFRA_AUDIO!\n");
             if (disable_clock(MT_CG_INFRA_AUDIO, "AUDIO"))
             {
-                PRINTK_AUD_CLK("%s disable_clock MT_CG_INFRA_AUDIO fail", __func__);
+                printk("%s disable_clock MT_CG_INFRA_AUDIO fail", __func__);
             }
 #else
             Afe_Set_Reg(AUDIO_TOP_CON0, 0x06000044, 0x06000044);
@@ -226,7 +251,7 @@ void AudDrv_Clk_Off(void)
         AUDIO_ASSERT(true);
         Aud_AFE_Clk_cntr = 0;
     }
-    PRINTK_AUD_CLK("-!! AudDrv_Clk_Off, Aud_AFE_Clk_cntr:%d \n",Aud_AFE_Clk_cntr);
+    PRINTK_AUD_CLK("-!! AudDrv_Clk_Off, Aud_AFE_Clk_cntr:%d\n",Aud_AFE_Clk_cntr);
     spin_unlock_irqrestore(&auddrv_Clk_lock, flags);
 }
 
@@ -849,6 +874,7 @@ void AudDrv_Suspend_Clk_Off(void)
 {
     unsigned long flags;
     spin_lock_irqsave(&auddrv_Clk_lock, flags);
+	PRINTK_AUD_CLK("%s Aud_Core_Clk_cntr = %d\n", __func__, Aud_Core_Clk_cntr);
     if (Aud_Core_Clk_cntr > 0)
     {
 #ifdef PM_MANAGER_API

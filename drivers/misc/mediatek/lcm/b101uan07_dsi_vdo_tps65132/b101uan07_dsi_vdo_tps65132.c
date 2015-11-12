@@ -215,9 +215,15 @@ static struct LCM_setting_table lcm_initialization_setting[] =
 {                                                       
 	//======Internal setting======
 	{0x8F, 1, {0xA5}},
-	{0x8C, 1, {0x80}},
+	{REGFLAG_DELAY, 10, {}},
 	{0x01, 0, {0x00}},
-	/*{0xC0, 1, {0x01}},
+	{REGFLAG_DELAY, 30, {}},
+	{0x8F, 1, {0xA5}},
+	{REGFLAG_DELAY, 10, {}},
+	//{0x85, 1, {0x04}},
+	//{0x86, 1, {0x08}},
+	//{0x8C, 1, {0x80}},
+	{0xC0, 1, {0x01}},
 	{0xC1, 1, {0xA0}},
 	{0xC2, 1, {0x40}},
 	{0xC3, 1, {0x0C}},
@@ -254,9 +260,23 @@ static struct LCM_setting_table lcm_initialization_setting[] =
 	{0xA9, 1, {0x4B}},
 	{0x83, 1, {0x00}},
 	{0x84, 1, {0x00}},
-	{0x8F, 1, {0x00}},*/
+	{0x11, 0, {0x00}},
+	{REGFLAG_DELAY, 120, {}},
+	{0x29, 0, {0x00}},
+	{REGFLAG_DELAY, 120, {}},
 	{REGFLAG_END_OF_TABLE, 0x00, {}}
 };                                                      
+
+static struct LCM_setting_table lcm_suspend_setting[] =
+{
+	//======Internal setting======
+	{0x28, 0, {0x00}},
+	{REGFLAG_DELAY, 120, {}},
+	{0x10, 0, {0x00}},
+	{REGFLAG_DELAY, 120, {}},
+	{REGFLAG_END_OF_TABLE, 0x00, {}}
+};
+
 
 static void push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
 {
@@ -316,8 +336,8 @@ static void lcm_get_params(LCM_PARAMS *params)
     params->height   = FRAME_HEIGHT;
     params->dsi.mode =BURST_VDO_MODE;
 
-    params->physical_width=143;
-    params->physical_height=228;
+    params->physical_width=135;
+    params->physical_height=216;
 
     // DSI
     /* Command mode setting */
@@ -334,16 +354,16 @@ static void lcm_get_params(LCM_PARAMS *params)
 		
     params->dsi.PS = LCM_PACKED_PS_24BIT_RGB888;//LCM_PACKED_PS_18BIT_RGB666;
 
-    params->dsi.vertical_sync_active				= 5;
-    params->dsi.vertical_backporch				= 2;
-    params->dsi.vertical_frontporch 				= 13;
+    params->dsi.vertical_sync_active				= 2;
+    params->dsi.vertical_backporch				= 25;
+    params->dsi.vertical_frontporch 				= 35;
     params->dsi.vertical_active_line				= FRAME_HEIGHT; 
 
-    params->dsi.horizontal_sync_active			= 16;
-    params->dsi.horizontal_backporch				= 8;
-    params->dsi.horizontal_frontporch				= 116;
+    params->dsi.horizontal_sync_active			= 4;
+    params->dsi.horizontal_backporch				= 60;
+    params->dsi.horizontal_frontporch				= 80;
     params->dsi.horizontal_active_pixel 			= FRAME_WIDTH;
-
+	params->dsi.cont_clock = 1;
     // Bit rate calculation
     //params->dsi.pll_div1=34;//32		// fref=26MHz, fvco=fref*(div1+1)	(div1=0~63, fvco=500MHZ~1GHz)
     //params->dsi.pll_div2=1; 		// div2=0~15: fout=fvo/(2*div2)
@@ -448,7 +468,7 @@ static void lcm_resume_power(void)
 static void init_lcm_registers(void)
 {
     unsigned int data_array[16];
-#if 0  
+#if 0
     
 #ifdef BUILD_LK
     printf("%s, LK \n", __func__);
@@ -487,7 +507,7 @@ static void lcm_init(void)
 	//power on vddin enable->VPA_PMU 3.3V
 	upmu_set_vpa_vosel(0x38);
 	upmu_set_vpa_en(1);
-	MDELAY(10);
+	MDELAY(20);
 
 	//power on avdd and avee
 	//lcm_resume_power();
@@ -502,23 +522,25 @@ static void lcm_init(void)
 
 static void lcm_suspend(void)
 {
-	unsigned int data_array[16];
+/*	unsigned int data_array[16];
 
 	data_array[0] = 0x00280500;  //display off                        
 	dsi_set_cmdq(data_array, 1, 1);
-	MDELAY(5);
+	MDELAY(120);
 	data_array[0] = 0x00100500;  //display off                        
 	dsi_set_cmdq(data_array, 1, 1);
-	MDELAY(10);
+	MDELAY(120);
 	//lcm_reset(0);
 	//lcm_suspend_power();
+*/
+	push_table(lcm_suspend_setting, sizeof(lcm_suspend_setting) / sizeof(struct LCM_setting_table), 1);
 
 	//power on vddin disable
 	upmu_set_vpa_vosel(0);
 	upmu_set_vpa_en(0);
 
 	//DSI_clk_HS_mode(0);
-	MDELAY(120);
+	//MDELAY(120);
 }
 
 

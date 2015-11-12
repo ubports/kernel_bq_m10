@@ -81,7 +81,7 @@ unsigned int gSkipIdleDetect = 0;
 unsigned int gDumpClockStatus = 1;
 #ifdef DISP_ENABLE_SODI_FOR_VIDEO_MODE	
 unsigned int gEnableSODIControl = 1;
-unsigned int gPrefetchControl = 1;
+unsigned int gPrefetchControl = 0;
 #else
 unsigned int gEnableSODIControl = 0;
 unsigned int gPrefetchControl = 0;

@@ -4225,7 +4225,7 @@ kal_int32 battery_meter_get_charger_voltage(void)
 	int ret = 0;
 	int val = 0;
 
-	val = 5;		/* set avg times */
+	val = 10;		/* set avg times */
 	ret = battery_meter_ctrl(BATTERY_METER_CMD_GET_ADC_V_CHARGER, &val);
 
 	/* val = (((R_CHARGER_1+R_CHARGER_2)*100*val)/R_CHARGER_2)/100; */

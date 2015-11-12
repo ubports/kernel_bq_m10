@@ -333,7 +333,7 @@ extern kal_int32 battery_meter_get_battery_soc(void);
 #endif
 
 #ifdef CONFIG_BATTERY_THERMAL_CHECK_POWER_ON
-#define MISC_FILENAME "/dev/nvram"
+#define MISC_FILENAME "/dev/block/platform/mtk-msdc.0/by-name/custram"
 typedef struct{
        char bat_state[32];
        char cpu_state[32];
@@ -350,7 +350,7 @@ int  save_thermal_status(int state)
        struct timespec time_now;
        fd = sys_open(MISC_FILENAME,O_RDWR,0);
        if(fd < 0){
-               battery_xlog_printk(BAT_LOG_CRTI, "Open /dev/nvram failed\n");
+               battery_xlog_printk(BAT_LOG_CRTI, "Open /dev/block/platform/mtk-msdc.0/by-name/custram failed\n");
                ret = 0;
        }else{
                if(0 == state){

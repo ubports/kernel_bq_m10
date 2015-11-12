@@ -94,7 +94,6 @@ bool cmdq_core_is_disp_scenario(const enum CMDQ_SCENARIO_ENUM scenario)
 
 bool cmdq_core_should_enable_prefetch(enum CMDQ_SCENARIO_ENUM scenario)
 {
-#if 0
 	switch (scenario) {
 	case CMDQ_SCENARIO_PRIMARY_DISP:
 	case CMDQ_SCENARIO_PRIMARY_ALL:
@@ -109,7 +108,6 @@ bool cmdq_core_should_enable_prefetch(enum CMDQ_SCENARIO_ENUM scenario)
 	default:
 		return false;
 	}
-#endif
 
 	return false;
 }
@@ -233,7 +231,9 @@ int cmdq_core_disp_thread_index_from_scenario(enum CMDQ_SCENARIO_ENUM scenario)
 	case CMDQ_SCENARIO_DISP_CONFIG_SUB_DITHER:
 	case CMDQ_SCENARIO_DISP_CONFIG_SUB_PQ:
 	case CMDQ_SCENARIO_DISP_CONFIG_SUB_PWM:
-		return 1;
+		/* when HW thread 0 enables pre-fetch, any thread 1 operation will let HW thread 0's behavior abnormally */
+		/* forbid thread 1 */
+		return 5;
 
 	case CMDQ_SCENARIO_DISP_ESD_CHECK:
 		return 2;
