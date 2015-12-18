@@ -1607,19 +1607,54 @@ static int mtkfb_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg
 #ifdef CONFIG_COMPAT
 static int mtkfb_compat_ioctl(struct fb_info *info, unsigned int cmd, unsigned long arg)
 {
-    #define MTKFB_GET_POWERSTATE_32 MTK_IOR(21, unsigned int)
+#define MTKFB_GET_POWERSTATE_32                 MTK_IOR(21, unsigned int)
+#define MTKFB_CAPTURE_FRAMEBUFFER_32            MTK_IOW(3, unsigned int)
+#define MTKFB_CONFIG_IMMEDIATE_UPDATE_32        MTK_IOW(4, unsigned int)
 
-    printk("mtkfb_compat_ioctl, info=%p, cmd nr=0x%08x, cmd size=0x%08x\n", info, 
+#define MTKFB_GET_DEFAULT_UPDATESPEED_32        MTK_IOR(17, unsigned int)
+#define MTKFB_GET_CURR_UPDATESPEED_32           MTK_IOR(18, unsigned int)
+#define MTKFB_CHANGE_UPDATESPEED_32             MTK_IOW(19, unsigned int)
+#define MTKFB_AEE_LAYER_EXIST_32                MTK_IOR(23, unsigned int)
+#define MTKFB_FACTORY_AUTO_TEST_32              MTK_IOR(25, unsigned int)
+#define MTKFB_META_RESTORE_SCREEN_32            MTK_IOW(101, unsigned int)
+
+    printk("mtkfb_compat_ioctl, info=%p, cmd nr=0x%08x, cmd size=0x%08x\n", info,
         (unsigned int)_IOC_NR(cmd), (unsigned int)_IOC_SIZE(cmd));
 
+#define FORWARD_IOCTL(name) \
+        case name##_32: \
+            return mtkfb_ioctl(info, name, arg);
 
     switch(cmd)
     {
-        case MTKFB_GET_POWERSTATE_32:
-          return mtkfb_ioctl(info, MTKFB_GET_POWERSTATE, arg);
+        FORWARD_IOCTL(MTKFB_GET_POWERSTATE)
+        FORWARD_IOCTL(MTKFB_CAPTURE_FRAMEBUFFER)
+        FORWARD_IOCTL(MTKFB_CONFIG_IMMEDIATE_UPDATE)
+        FORWARD_IOCTL(MTKFB_GET_DEFAULT_UPDATESPEED)
+        FORWARD_IOCTL(MTKFB_GET_CURR_UPDATESPEED)
+        FORWARD_IOCTL(MTKFB_CHANGE_UPDATESPEED)
+        FORWARD_IOCTL(MTKFB_AEE_LAYER_EXIST)
+        FORWARD_IOCTL(MTKFB_FACTORY_AUTO_TEST)
+        FORWARD_IOCTL(MTKFB_META_RESTORE_SCREEN)
 
-        // ...
-        
+        case MTKFB_LOCK_FRONT_BUFFER:
+        case MTKFB_UNLOCK_FRONT_BUFFER:
+        case MTKFB_GET_FRAMEBUFFER_MVA:
+        case MTKFB_POWEROFF:
+        case MTKFB_POWERON:
+        case MTKFB_GET_DISPLAY_IF_INFORMATION:
+        case MTKFB_SLT_AUTO_CAPTURE:
+
+#ifdef MTK_FB_OVERLAY_SUPPORT
+        case MTKFB_GET_OVERLAY_LAYER_INFO:
+        case MTKFB_SET_OVERLAY_LAYER:
+        case MTKFB_ERROR_INDEX_UPDATE_TIMEOUT:
+        case MTKFB_ERROR_INDEX_UPDATE_TIMEOUT_AEE:
+        case MTKFB_SET_VIDEO_LAYERS:
+        case MTKFB_TRIG_OVERLAY_OUT:
+#endif // MTK_FB_OVERLAY_SUPPORT
+            return mtkfb_ioctl(info, cmd, arg);
+
         default:
           printk("error, unknown mtkfb_compat_ioctl, info=%p, cmd nr=0x%08x, cmd size=0x%08x\n", info, 
         (unsigned int)_IOC_NR(cmd), (unsigned int)_IOC_SIZE(cmd));
