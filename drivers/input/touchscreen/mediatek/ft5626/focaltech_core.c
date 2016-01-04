@@ -109,6 +109,7 @@
 #define TPD_RESET_ISSUE_WORKAROUND
 #define TPD_MAX_RESET_COUNT 	3
 
+#define MT_PROTOCOL_B
 
 /*******************************************************************************
 * 4.Static variables
@@ -1524,9 +1525,7 @@ void fts_reset_tp(int HighOrLow)
 		fts_Gesture_init(tpd->dev);		
 	#endif
 	#ifdef MT_PROTOCOL_B
-		#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 8, 0))
-			input_mt_init_slots(tpd->dev, MT_MAX_TOUCH_POINTS);
-		#endif
+		input_mt_init_slots(tpd->dev, MT_MAX_TOUCH_POINTS, 0);
 		input_set_abs_params(tpd->dev, ABS_MT_TOUCH_MAJOR,0, 255, 0, 0);
 		input_set_abs_params(tpd->dev, ABS_MT_POSITION_X, 0, TPD_RES_X, 0, 0);
 		input_set_abs_params(tpd->dev, ABS_MT_POSITION_Y, 0, TPD_RES_Y, 0, 0);
