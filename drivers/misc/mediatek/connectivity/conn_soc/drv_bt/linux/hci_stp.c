@@ -202,10 +202,10 @@ static unsigned char bt_reset_evt[] =
 //static unsigned char bt_set_RF_reg_100_evt[] =
 //    {0x04, 0x0E, 0x04, 0x01, 0xB0, 0xFC, 0x00};
 
-static unsigned char bt_set_coex_adjust[10] =
-    {0x01, 0x22, 0xFC, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static unsigned char bt_set_coex_adjust_evt[] =
-    {0x04, 0x0E, 0x04, 0x01, 0x22, 0xFC, 0x00};
+//static unsigned char bt_set_coex_adjust[10] =
+//    {0x01, 0x22, 0xFC, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//static unsigned char bt_set_coex_adjust_evt[] =
+//    {0x04, 0x0E, 0x04, 0x01, 0x22, 0xFC, 0x00};
 #if 0
 static struct hci_stp_init_cmd init_table[] =
 {
@@ -243,7 +243,7 @@ static struct hci_stp_init_cmd init_table[] =
     hci_stp_init_entry(bt_set_radio),
     hci_stp_init_entry(bt_set_tx_pwr_offset),
     hci_stp_init_entry(bt_set_sleep),
-    hci_stp_init_entry(bt_set_coex_adjust),
+    // hci_stp_init_entry(bt_set_coex_adjust),
 };
 #endif
 /*******************************************************************************
@@ -884,8 +884,8 @@ static void hci_stp_dev_init_work (struct work_struct *work)
         cfg.feature[0], cfg.feature[1]);
     BT_DBG_FUNC("[tx power offset %02x %02x %02x]\n",
         cfg.tx_pwr_offset[0], cfg.tx_pwr_offset[1], cfg.tx_pwr_offset[2]);
-    BT_DBG_FUNC("[coex_adjust %02x %02x %02x %02x %02x %02x]\n",
-        cfg.coex_adjust[0], cfg.coex_adjust[1], cfg.coex_adjust[2], cfg.coex_adjust[3], cfg.coex_adjust[4], cfg.coex_adjust[5]);
+//    BT_DBG_FUNC("[coex_adjust %02x %02x %02x %02x %02x %02x]\n",
+//        cfg.coex_adjust[0], cfg.coex_adjust[1], cfg.coex_adjust[2], cfg.coex_adjust[3], cfg.coex_adjust[4], cfg.coex_adjust[5]);
 
     bt_set_bd_addr[4] = cfg.addr[5];
     bt_set_bd_addr[5] = cfg.addr[4];
@@ -900,7 +900,7 @@ static void hci_stp_dev_init_work (struct work_struct *work)
     memcpy(&bt_set_tx_pwr_offset[4], cfg.tx_pwr_offset, 3);
     memcpy(&bt_set_sleep[4], cfg.sleep, 7);
     memcpy(&bt_set_feature[4], cfg.feature, 2);
-    memcpy(&bt_set_coex_adjust[4], cfg.coex_adjust, 6);
+//    memcpy(&bt_set_coex_adjust[4], cfg.coex_adjust, 6);
 
     /*
      * INIT command loop starts
