@@ -4,6 +4,7 @@
 
 obj-$(CONFIG_BACKPORT_BT_HCIVHCI)	+= hci_vhci.o
 obj-$(CONFIG_BACKPORT_BT_HCIUART)	+= hci_uart.o
+obj-$(CONFIG_BACKPORT_BT_HCISTP)	+= hci_stp.o
 obj-$(CONFIG_BACKPORT_BT_HCIBCM203X)	+= bcm203x.o
 obj-$(CONFIG_BACKPORT_BT_HCIBPA10X)	+= bpa10x.o
 obj-$(CONFIG_BACKPORT_BT_HCIBFUSB)	+= bfusb.o
@@ -37,3 +38,12 @@ hci_uart-$(CONFIG_BACKPORT_BT_HCIUART_BCM)	+= hci_bcm.o
 hci_uart-objs				:= $(hci_uart-y)
 
 ccflags-y += -D__CHECK_ENDIAN__
+ccflags-y += -D WMT_IDC_SUPPORT=1 -D MTK_WCN_WMT_STP_EXP_SYMBOL_ABSTRACT -D MTK_WCN_REMOVE_KERNEL_MODULE -D CONFIG_MTK_WCN_ARM64
+ccflags-y += -I$(KBUILD_SRC)/drivers/misc/mediatek/mach/mt8163/include \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/conn_soc/common/core/include/ \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/conn_soc/common/include/ \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/conn_soc/common/linux/include/ \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/common_detect/ \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/btif/inc/ \
+	-I$(KBUILD_SRC)/drivers/misc/mediatek/connectivity/conn_soc/common/linux/pri/include/
+	# -I$(backport_srctree)/drivers/bluetooth \

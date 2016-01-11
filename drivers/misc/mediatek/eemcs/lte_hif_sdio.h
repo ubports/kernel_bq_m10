@@ -35,7 +35,7 @@
 #define MT_LTE_RX_HEADER_LENGTH		(0)
 
 
-#if EMCS_SDIO_DRVTST
+#ifdef EMCS_SDIO_DRVTST
 // for rx max pkt test temp use
 #define MT_LTE_RX_Q0_PKT_CNT		(64)
 #define MT_LTE_RX_Q1_PKT_CNT		(64)
@@ -463,12 +463,12 @@ KAL_INT32 mtlte_hif_force_md_assert_by_swint(void);
 *
 *************************************************************/
 
-#if TEST_DRV
+#ifdef TEST_DRV
 void mtlte_hif_sdio_enable_fw_own_back(KAL_UINT32 enable) ;
 #endif
 
 
-#if TEST_DRV
+#ifdef TEST_DRV
 typedef struct _athif_test_param{
     KAL_INT16   testing_ulq_count;
     KAL_INT16   testing_dlq_int;
