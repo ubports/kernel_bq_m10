@@ -1,13 +1,7 @@
- /*
- * Copyright (c) 2013 TRUSTONIC LIMITED
- * All rights reserved
- * 
- * The present software is the confidential and proprietary information of
- * TRUSTONIC LIMITED. You shall not disclose the present software and shall
- * use it only in accordance with the terms of the license agreement you
- * entered into with TRUSTONIC LIMITED. This software may be subject to
- * export or import laws in certain countries.
+/*
+ * (c) TRUSTONIC LIMITED 2013
  */
+
 
 #ifndef TCI_H_
 #define TCI_H_
@@ -44,3 +38,5 @@ typedef struct{
 } tciResponseHeader_t;
 
 #endif // TCI_H_
+
+

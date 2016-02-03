@@ -1,13 +1,7 @@
 /*
- * Copyright (c) 2013 TRUSTONIC LIMITED
- * All rights reserved
- * 
- * The present software is the confidential and proprietary information of
- * TRUSTONIC LIMITED. You shall not disclose the present software and shall
- * use it only in accordance with the terms of the license agreement you
- * entered into with TRUSTONIC LIMITED. This software may be subject to
- * export or import laws in certain countries.
+ * (c) TRUSTONIC LIMITED 2013
  */
+
 
 #ifndef _TL_SEC_API_H_
 #define _TL_SEC_API_H_
@@ -71,3 +65,5 @@ typedef struct {
 #define TL_SEC_UUID { { 0x5, 0x11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 
 #endif // _TL_SEC_API_H_
+
+

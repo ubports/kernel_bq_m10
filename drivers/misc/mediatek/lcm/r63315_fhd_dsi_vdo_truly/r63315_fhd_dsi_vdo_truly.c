@@ -1,24 +1,7 @@
-/**************************************************************************/
-/*                                                            			 */
-/*                            PRESENTATION                          	 */
-/*              Copyright (c) 2013 JRD Communications, Inc.        		 */
-/***************************************************************************/
-/*                                                                        */
-/*    This material is company confidential, cannot be reproduced in any  */
-/*    form without the written permission of JRD Communications, Inc.      */
-/*                                                                         */
-/*---------------------------------------------------------------------------*/
-/*   Author :    XIE Wei        wei.xie@tcl.com                             */
-/*---------------------------------------------------------------------------*/
-/*    Comments :    driver ic: r63311      module: Truly   								 */
-/*    File      :mediatek/custom/common/kernel/lcm/r63311_scribepro/r63311_scribepro.c
-/*    Labels   :                                                     */
-/*=========================================================*/
-/* Modifications on Features list / Changes Request / Problems Report    */                                                                                                           
-/* date    | author           | Key                      | comment           */
-/*---------|------------------|--------------------------|-------------------*/
-/*2013/05/09 |
-/*========================================================*/
+/*
+ * (c) JRD Communications, Inc 2013
+ */
+
 
 #ifndef BUILD_LK
 #include <linux/string.h>
@@ -475,3 +458,5 @@ LCM_DRIVER r63315_fhd_dsi_vdo_truly_lcm_drv =
 	.esd_check		= lcm_esd_check,
 	.esd_recover	= lcm_esd_recover,
 };
+
+

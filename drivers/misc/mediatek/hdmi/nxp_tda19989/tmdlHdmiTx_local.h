@@ -1,36 +1,7 @@
-/**
- * Copyright (C) 2006 NXP N.V., All Rights Reserved.
- * This source code and any compilation or derivative thereof is the proprietary
- * information of NXP N.V. and is confidential in nature. Under no circumstances
- * is this software to be  exposed to or placed under an Open Source License of
- * any type without the expressed written permission of NXP N.V.
- *
- * \file          tmdlHdmiTx_local.h
- *
- * \version       $Revision: 1 $
- *
- * \date          $Date: 02/08/07 08:32 $
- *
- * \brief         devlib driver component API for the TDA998x HDMI Transmitters
- *
- * \section refs  Reference Documents
- * HDMI Tx Driver - FRS.doc,
- *
- * \section info  Change Information
- *
- * \verbatim
+/*
+ * (c) NXP N.V. 2006
+ */
 
-   $History: tmdlHdmiTx_local.h $
- *
-  * *****************  Version 13  *****************
- * User: J. Lamotte Date: 02/08/07   Time: 08:32
- * Updated in $/Source/tmdlHdmiTx/inc
- * initial version
- *
-
-   \endverbatim
- *
-*/
 
 #ifndef TMDLHDMITX_LOCAL_H
 #define TMDLHDMITX_LOCAL_H
@@ -883,3 +854,5 @@ extern "C" {
 /*============================================================================*/
 /*                               END OF FILE                                  */
 /*============================================================================*/
+
+

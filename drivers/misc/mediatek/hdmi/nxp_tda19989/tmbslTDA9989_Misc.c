@@ -1,20 +1,7 @@
-/**
- * Copyright (C) 2009 NXP N.V., All Rights Reserved.
- * This source code and any compilation or derivative thereof is the proprietary
- * information of NXP N.V. and is confidential in nature. Under no circumstances
- * is this software to be  exposed to or placed under an Open Source License of
- * any type without the expressed written permission of NXP N.V.
- *
- * \file          tmbslTDA9989_misc.c
- *
- * \version        %version: 3 %
- *
- *
-*/
+/*
+ * (c) NXP N.V. 2009
+ */
 
-/*============================================================================*/
-/*                       INCLUDE FILES                                        */
-/*============================================================================*/
 #ifndef TMFL_TDA19989
 #define TMFL_TDA19989
 #endif
@@ -2249,3 +2236,5 @@ tmErrorCode_t tmbslTDA9989HdcpPowerDown(tmUnitSelect_t txUnit, Bool requested) {
 /*============================================================================*/
 /*                            END OF FILE                                     */
 /*============================================================================*/
+
+

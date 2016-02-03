@@ -1,17 +1,7 @@
-/**
- * Copyright (C) 2006 NXP N.V., All Rights Reserved.
- * This source code and any compilation or derivative thereof is the proprietary
- * information of NXP N.V. and is confidential in nature. Under no circumstances
- * is this software to be  exposed to or placed under an Open Source License of
- * any type without the expressed written permission of NXP N.V.
- *
- * Version       Revision: 1.0
- *
- * Date          Date: 27/10/09
- *
- * Brief         API for the TDA1998x HDMI Transmitters
- *
- **/
+/*
+ * (c) NXP N.V. 2006
+ */
+
 
 #include <linux/types.h>
 
@@ -1152,3 +1142,5 @@ enum {
 
 #endif				/* __cec_h__ */
 #endif				/* __cec_ioctl__ */
+
+

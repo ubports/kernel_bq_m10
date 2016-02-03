@@ -2,7 +2,7 @@
 
 set -e
 
-ABOOTIMG=${ABOOTIMG:-$(which abootimga || true)}
+ABOOTIMG=${ABOOTIMG:-$(which abootimg || true)}
 
 if [ -z "${ABOOTIMG}" ]; then
   echo "abootimg not found. Please install abootimg." >&2

@@ -1,12 +1,7 @@
-/**********************************************************************/
-/***************           MTK CONFIDENTIAL            ****************/
-/***************                                       ****************/
-/***************   Description : MT8118 MTKPrintf      ****************/
-/***************                 Procedure             ****************/
-/***************                                       ****************/
-/***************       Company : MediaTek Inc.         ****************/
-/***************    Programmer : Ted Hu                ****************/
-/**********************************************************************/
+/*
+ * (c) MediaTek Inc. 2014
+ */
+
 #define _VDEC_VERIFY_MAIN_C_
 //#include "drv_config.h"
 //#include "x_ckgen.h"
@@ -896,4 +891,6 @@ void vDrmaBusyOff(UINT32  u4InstID)
 {
     i4VDEC_HAL_Dram_Busy_Off(0, PHYSICAL((UINT32)(_pucDramBusy[u4InstID])), 0x10000);
 }
+
+
 

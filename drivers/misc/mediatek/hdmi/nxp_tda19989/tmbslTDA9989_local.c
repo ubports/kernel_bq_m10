@@ -1,20 +1,7 @@
-/**
- * Copyright (C) 2009 NXP N.V., All Rights Reserved.
- * This source code and any compilation or derivative thereof is the proprietary
- * information of NXP N.V. and is confidential in nature. Under no circumstances
- * is this software to be  exposed to or placed under an Open Source License of
- * any type without the expressed written permission of NXP N.V.
- *
- * \file          tmbslTDA9989_local.c
- *
- * \version       $Revision: 2 $
- *
- *
-*/
+/*
+ * (c) NXP N.V. 2009
+ */
 
-/*============================================================================*/
-/*                   FILE CONFIGURATION                                       */
-/*============================================================================*/
 
 /* Defining this symbol on the compiler command line excludes some API checks */
 /* #define NO_RETIF_BADPARAM */
@@ -589,3 +576,5 @@ tmErrorCode_t lmemset(void *pTable1, const UInt8 value, UInt Size) {
 /*============================================================================*/
 /*                     END OF FILE                                            */
 /*============================================================================*/
+
+

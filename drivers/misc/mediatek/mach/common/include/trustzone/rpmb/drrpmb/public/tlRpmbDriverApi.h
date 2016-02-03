@@ -1,19 +1,7 @@
 /*
- * Copyright (c) 2013 TRUSTONIC LIMITED
- * All rights reserved
- *
- * The present software is the confidential and proprietary information of
- * TRUSTONIC LIMITED. You shall not disclose the present software and shall
- * use it only in accordance with the terms of the license agreement you
- * entered into with TRUSTONIC LIMITED. This software may be subject to
- * export or import laws in certain countries.
+ * (c) TRUSTONIC LIMITED 2013
  */
 
-/*
- * @file   tlRpmbDriverApi.h
- * @brief  Contains trustlet API definitions
- *
- */
 
 #ifndef __TLDRIVERAPI_H__
 #define __TLDRIVERAPI_H__
@@ -107,3 +95,5 @@ _TLAPI_EXTERN_C tlApiResult_t tlApiRandomGenerateData (
         size_t * randomLen);
 
 #endif // __TLDRIVERAPI_H__
+
+

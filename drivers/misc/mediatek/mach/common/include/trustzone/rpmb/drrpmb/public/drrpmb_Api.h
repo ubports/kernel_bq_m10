@@ -1,19 +1,7 @@
 /*
- * Copyright (c) 2013 TRUSTONIC LIMITED
- * All rights reserved
- * 
- * The present software is the confidential and proprietary information of
- * TRUSTONIC LIMITED. You shall not disclose the present software and shall
- * use it only in accordance with the terms of the license agreement you
- * entered into with TRUSTONIC LIMITED. This software may be subject to
- * export or import laws in certain countries.
+ * (c) TRUSTONIC LIMITED 2013
  */
 
-/**
- * @file   drrpmb_Api.h
- * @brief  Contains DCI command definitions and data structures
- *
- */
 
 #ifndef __DRRPMBAPI_H__
 #define __DRRPMBAPI_H__
@@ -92,3 +80,5 @@ typedef struct {
 #define DRV_DBG_UUID { { 7, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
 
 #endif // __DRRPMBAPI_H__
+
+
