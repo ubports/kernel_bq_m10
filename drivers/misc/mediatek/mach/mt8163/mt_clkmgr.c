@@ -4322,14 +4322,6 @@ int mt_enable_clock(enum cg_clk_id id, char *name)
 	BUG_ON(!clk->ops->check_validity(clk));
 	BUG_ON(!name);
 
-#ifdef CLK_LOG_TOP
-	if (!ignore_clk_log(id, clk))
-		clk_info("[%s]: id=%d, names=%s\n", __func__, id, name);
-#else
-	if (id == MT_CG_DISP0_SMI_COMMON)
-		clk_dbg("[%s]: id=%d, names=%s\n", __func__, id, name);
-#endif
-
 	clkmgr_lock(flags);
 	err = clk_enable_internal(clk, name);
 	clkmgr_unlock(flags);
@@ -4353,14 +4345,6 @@ int mt_disable_clock(enum cg_clk_id id, char *name)
 	BUG_ON(!clk->grp);
 	BUG_ON(!clk->ops->check_validity(clk));
 	BUG_ON(!name);
-
-#ifdef CLK_LOG_TOP
-	if (!ignore_clk_log(id, clk))
-		clk_info("[%s]: id=%d, names=%s\n", __func__, id, name);
-#else
-	if (id == MT_CG_DISP0_SMI_COMMON)
-		clk_dbg("[%s]: id=%d, names=%s\n", __func__, id, name);
-#endif
 
 	clkmgr_lock(flags);
 	err = clk_disable_internal(clk, name);
