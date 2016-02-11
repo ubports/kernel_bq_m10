@@ -110,6 +110,7 @@
 #define TPD_MAX_RESET_COUNT 	3
 
 #define MT_PROTOCOL_B
+#define TPD_CLOSE_POWER_IN_SLEEP
 
 /*******************************************************************************
 * 4.Static variables
@@ -1924,10 +1925,11 @@ failed_create_class:
  	#if FTS_GESTRUE_EN
     		fts_write_reg(fts_i2c_client,0xD0,0x00);
 	#endif
-	#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+	#ifdef TPD_CLOSE_POWER_IN_SLEEP
+                printk("[Focal][Touch] Resume by turning touchpad on again");
 		hwPowerOn(TPD_POWER_SOURCE,VOL_3000,"TP");
 	#else
-		
+                printk("[Focal][Touch] Resume by turning fiddling stuff through gpio pins");
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
 		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
@@ -2034,6 +2036,7 @@ failed_create_class:
 	 mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 	 mutex_lock(&i2c_access);
 	#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+                printk("[Focal][Touch] Power Down touchpad");
 		hwPowerDown(TPD_POWER_SOURCE,"TP");
 	#else
 		if ((fts_updateinfo_curr.CHIP_ID==0x59))
