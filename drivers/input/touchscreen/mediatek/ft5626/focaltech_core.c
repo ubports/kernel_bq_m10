@@ -119,6 +119,8 @@ struct i2c_client *fts_i2c_client = NULL;
 struct input_dev *fts_input_dev=NULL;
 struct task_struct *thread = NULL;
 
+static int drain_touchscreen = 0;
+
 #ifdef TPD_DOUBLE_CLICK_WAKEUP
 static struct class *ft5626_class = NULL;
 int double_tap_wakeup_enable;
@@ -810,7 +812,7 @@ static int fts_read_Touchdata(struct ts_event *pinfo)
 	if (tpd_halt)
 	{
 		TPD_DMESG( "tpd_touchinfo return ..\n");
-		return false;
+		return ret;
 	}
 
 	mutex_lock(&i2c_access);
@@ -827,10 +829,6 @@ static int fts_read_Touchdata(struct ts_event *pinfo)
 	//buf_count_add1=buf_count_add;
 	memcpy( buf_touch_data+(((buf_count_add-1)%30)*POINT_READ_BUF), buf, sizeof(u8)*POINT_READ_BUF );
 
-
-	
-	
-	
 	return 0;
 }
 
@@ -1119,6 +1117,18 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
 }
 #endif
 
+
+static int fts_read_and_report()
+{
+    struct ts_event touchscreen_data;
+    int ret;
+
+    ret = fts_read_Touchdata(&touchscreen_data == 0;
+    if(ret)
+        fts_report_value(&touchscreen_data);
+    return ret;
+}
+
  /************************************************************************
 * Name: touch_event_handler
 * Brief: interrupt event from TP, and read/report data to Android system 
@@ -1129,7 +1139,6 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
  static int touch_event_handler(void *unused)
  {
 	struct touch_info cinfo, pinfo;
-	struct ts_event pevent;
 	int i=0;
 	int ret = 0;
 
@@ -1246,9 +1255,17 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
                                 
 		#ifdef MT_PROTOCOL_B
 		{
-            		ret = fts_read_Touchdata(&pevent);
-			//if (ret == 0)
-			fts_report_value(&pevent);
+                        if (drain_touchscreen)
+                        {
+                            while(fts_read_and_report())
+                                printk("[Focal][Touch] stale touch screen event buffer received after resume");
+                            --drain_touchscreen;
+                            printk("[Focal][Touch] another drain run complete");
+                        }
+                        else
+                        {
+                            fts_read_and_report();
+                        }
 		}
 		#else
 		{
@@ -1929,7 +1946,6 @@ failed_create_class:
                 printk("[Focal][Touch] Resume by turning touchpad on again");
 		hwPowerOn(TPD_POWER_SOURCE,VOL_3000,"TP");
 	#else
-                printk("[Focal][Touch] Resume by turning fiddling stuff through gpio pins");
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
 		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
@@ -1950,6 +1966,11 @@ failed_create_class:
     		queue_delayed_work(gtp_esd_check_workqueue, &gtp_esd_check_work, TPD_ESD_CHECK_CIRCLE);
 	#endif
 
+        printk("[Focal][Touch] Draining touchscreen events");
+        /* it is still unclear when the driver misses interrupts
+         * drain_touchscreen defines on how many of the following interrupts
+         * the driver will drain the touchscreen */
+        drain_touchscreen = 3;
 	TPD_DMESG("TPD wake up done\n");
 
  }
