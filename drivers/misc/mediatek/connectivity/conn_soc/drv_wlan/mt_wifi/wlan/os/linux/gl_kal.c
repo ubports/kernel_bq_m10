@@ -2411,7 +2411,6 @@ kalIoctl(IN P_GLUE_INFO_T prGlueInfo,
 	/* <9> Block and wait for event or timeout, current the timeout is 5 secs */
 	/* if (wait_for_completion_interruptible_timeout(&prGlueInfo->rPendComp, 5 * KAL_HZ)) { */
 	/* if (!wait_for_completion_interruptible(&prGlueInfo->rPendComp)) { */
-	DBGLOG(INIT, INFO, ("kalIoctl: before wait, caller: %p\n", __builtin_return_address(0)));
 	wait_for_completion(&prGlueInfo->rPendComp); {
 		/* Case 1: No timeout. */
 		/* if return WLAN_STATUS_PENDING, the status of cmd is stored in prGlueInfo  */
@@ -2431,7 +2430,6 @@ kalIoctl(IN P_GLUE_INFO_T prGlueInfo,
 		ret = WLAN_STATUS_FAILURE;
 	}
 #endif
-	DBGLOG(INIT, INFO, ("kalIoctl: done\n"));
 	up(&prGlueInfo->ioctl_sem);
 	up(&g_halt_sem);
 
