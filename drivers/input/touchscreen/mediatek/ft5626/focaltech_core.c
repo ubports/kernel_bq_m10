@@ -1123,7 +1123,7 @@ static int fts_read_and_report()
     struct ts_event touchscreen_data;
     int ret;
 
-    ret = fts_read_Touchdata(&touchscreen_data == 0;
+    ret = fts_read_Touchdata(&touchscreen_data) == 0;
     if(ret)
         fts_report_value(&touchscreen_data);
     return ret;
