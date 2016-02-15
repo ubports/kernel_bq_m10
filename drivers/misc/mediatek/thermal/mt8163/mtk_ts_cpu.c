@@ -1909,8 +1909,7 @@ static int tscpu_get_temp(struct thermal_zone_device *thermal,
 #endif
 
 	g_max_temp = curr_temp;
-    
-    tscpu_printk("tscpu_get_temp, current temp =%d\n",curr_temp);
+
 	return ret;
 }
 

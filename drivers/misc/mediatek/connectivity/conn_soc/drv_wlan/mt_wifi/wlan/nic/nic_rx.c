@@ -1751,7 +1751,6 @@ VOID nicRxProcessEventPacket(IN P_ADAPTER_T prAdapter, IN OUT P_SW_RFB_T prSwRfb
 	prEvent = (P_WIFI_EVENT_T) prSwRfb->pucRecvBuff;
 	prGlueInfo = prAdapter->prGlueInfo;
 
-	DBGLOG(INIT, TRACE, ("prEvent->ucEID = 0x%02x\n", prEvent->ucEID));
 	/* Event Handling */
 	switch (prEvent->ucEID) {
 	case EVENT_ID_WARNING_TO_DRIVER:
@@ -1762,8 +1761,6 @@ VOID nicRxProcessEventPacket(IN P_ADAPTER_T prAdapter, IN OUT P_SW_RFB_T prSwRfb
 			prEventLog = (P_EVENT_LOG_TO_DRIVER_T) (prEvent->aucBuffer);
 			UpTimeSec = prEventLog->WifiUpTime / 1000000;
 			UpTimeMicroSec = prEventLog->WifiUpTime % 1000000;
-			LOG_FUNC("[%d.%d] FW Warning!! %s: %d, %s\n", UpTimeSec, UpTimeMicroSec, prEventLog->fileName,
-				 prEventLog->lineNo, prEventLog->log);
 
 			break;
 		}
