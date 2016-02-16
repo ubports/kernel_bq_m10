@@ -1257,10 +1257,11 @@ static int fts_read_and_report()
 		{
                         if (drain_touchscreen)
                         {
-                            while(fts_read_and_report())
-                                printk("[Focal][Touch] stale touch screen event buffer received after resume");
+                            /* the dma read request seems to always return true - so we limit the touchscreen draining to 5 updates here */
+                            for (int i = 0; i != 5; ++i)
+                                if(!fts_read_and_report())
+                                    break;
                             --drain_touchscreen;
-                            printk("[Focal][Touch] another drain run complete");
                         }
                         else
                         {
