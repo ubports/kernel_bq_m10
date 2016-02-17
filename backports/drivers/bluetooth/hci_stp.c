@@ -1278,6 +1278,7 @@ static int hci_stp_open(struct hci_dev *hdev)
     struct hci_stp *hu;
     int ret;
     static int first_run = 1;
+    int num_tries = 0;
 
     // canonical ycheng: hack to prevent race condition with hci_stp_tx_init(hu);
     if (first_run == 1) {
@@ -1303,10 +1304,16 @@ static int hci_stp_open(struct hci_dev *hdev)
     skb_queue_purge(&hu->txq);
     hci_stp_txq_unlock(HCI_STP_TXQ_IN_BLZ);
 
-    /* turn on BT */
-    if (unlikely(MTK_WCN_BOOL_FALSE == mtk_wcn_wmt_func_on(WMTDRV_TYPE_BT))) {
+    /* Turn on BT. There is a race with process 6620_launcher, as we need it to
+     * set some driver data via WMT_IOCTL_SET_STP_MODE before this call works,
+     * so we wait for that here (60 secs at most).
+     */
+    while (unlikely(MTK_WCN_BOOL_FALSE == mtk_wcn_wmt_func_on(WMTDRV_TYPE_BT))) {
         BT_WARN_FUNC("WMT turn on BT fail!\n");
-        return -ENODEV;
+        if (++num_tries > 300)
+            return -ENODEV;
+
+        msleep_interruptible(200);
     }
 
     BT_INFO_FUNC("WMT turn on BT OK!\n");
