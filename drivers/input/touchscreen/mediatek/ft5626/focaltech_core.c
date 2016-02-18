@@ -1257,8 +1257,9 @@ static int fts_read_and_report()
 		{
                         if (drain_touchscreen)
                         {
+                            int i = 0;
                             /* the dma read request seems to always return true - so we limit the touchscreen draining to 5 updates here */
-                            for (int i = 0; i != 5; ++i)
+                            for (;i != 5; ++i)
                                 if(!fts_read_and_report())
                                     break;
                             --drain_touchscreen;
