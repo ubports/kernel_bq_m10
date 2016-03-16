@@ -868,9 +868,15 @@ static int fts_report_value(struct ts_event *data)
 		data->au16_x[i] =
 		    (s16) (buf[FTS_TOUCH_X_H_POS + FTS_TOUCH_STEP * i] & 0x0F) <<
 		    8 | (s16) buf[FTS_TOUCH_X_L_POS + FTS_TOUCH_STEP * i];
+		#ifdef TP_F1005_HD
+		data->au16_x[i] = data->au16_x[i] * 2 / 3;
+		#endif
 		data->au16_y[i] =
 		    (s16) (buf[FTS_TOUCH_Y_H_POS + FTS_TOUCH_STEP * i] & 0x0F) <<
 		    8 | (s16) buf[FTS_TOUCH_Y_L_POS + FTS_TOUCH_STEP * i];
+		#ifdef TP_F1005_HD
+		data->au16_y[i] = data->au16_y[i] * 2 / 3;
+		#endif
 		data->au8_touch_event[i] =
 		    buf[FTS_TOUCH_EVENT_POS + FTS_TOUCH_STEP * i] >> 6;
 		data->au8_finger_id[i] =
