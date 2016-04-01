@@ -110,6 +110,7 @@
 #define TPD_MAX_RESET_COUNT 	3
 
 #define MT_PROTOCOL_B
+#define TPD_CLOSE_POWER_IN_SLEEP
 
 /*******************************************************************************
 * 4.Static variables
@@ -117,6 +118,8 @@
 struct i2c_client *fts_i2c_client = NULL;
 struct input_dev *fts_input_dev=NULL;
 struct task_struct *thread = NULL;
+
+static int drain_touchscreen = 0;
 
 #ifdef TPD_DOUBLE_CLICK_WAKEUP
 static struct class *ft5626_class = NULL;
@@ -809,7 +812,7 @@ static int fts_read_Touchdata(struct ts_event *pinfo)
 	if (tpd_halt)
 	{
 		TPD_DMESG( "tpd_touchinfo return ..\n");
-		return false;
+		return ret;
 	}
 
 	mutex_lock(&i2c_access);
@@ -826,10 +829,6 @@ static int fts_read_Touchdata(struct ts_event *pinfo)
 	//buf_count_add1=buf_count_add;
 	memcpy( buf_touch_data+(((buf_count_add-1)%30)*POINT_READ_BUF), buf, sizeof(u8)*POINT_READ_BUF );
 
-
-	
-	
-	
 	return 0;
 }
 
@@ -869,9 +868,15 @@ static int fts_report_value(struct ts_event *data)
 		data->au16_x[i] =
 		    (s16) (buf[FTS_TOUCH_X_H_POS + FTS_TOUCH_STEP * i] & 0x0F) <<
 		    8 | (s16) buf[FTS_TOUCH_X_L_POS + FTS_TOUCH_STEP * i];
+		#ifdef TP_F1005_HD
+		data->au16_x[i] = data->au16_x[i] * 2 / 3;
+		#endif
 		data->au16_y[i] =
 		    (s16) (buf[FTS_TOUCH_Y_H_POS + FTS_TOUCH_STEP * i] & 0x0F) <<
 		    8 | (s16) buf[FTS_TOUCH_Y_L_POS + FTS_TOUCH_STEP * i];
+		#ifdef TP_F1005_HD
+		data->au16_y[i] = data->au16_y[i] * 2 / 3;
+		#endif
 		data->au8_touch_event[i] =
 		    buf[FTS_TOUCH_EVENT_POS + FTS_TOUCH_STEP * i] >> 6;
 		data->au8_finger_id[i] =
@@ -1118,6 +1123,18 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
 }
 #endif
 
+
+static int fts_read_and_report()
+{
+    struct ts_event touchscreen_data;
+    int ret;
+
+    ret = fts_read_Touchdata(&touchscreen_data) == 0;
+    if(ret)
+        fts_report_value(&touchscreen_data);
+    return ret;
+}
+
  /************************************************************************
 * Name: touch_event_handler
 * Brief: interrupt event from TP, and read/report data to Android system 
@@ -1128,7 +1145,6 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
  static int touch_event_handler(void *unused)
  {
 	struct touch_info cinfo, pinfo;
-	struct ts_event pevent;
 	int i=0;
 	int ret = 0;
 
@@ -1245,9 +1261,19 @@ int tpd_ps_operate(void* self, uint32_t command, void* buff_in, int size_in,
                                 
 		#ifdef MT_PROTOCOL_B
 		{
-            		ret = fts_read_Touchdata(&pevent);
-			//if (ret == 0)
-			fts_report_value(&pevent);
+                        if (drain_touchscreen)
+                        {
+                            int i = 0;
+                            /* the dma read request seems to always return true - so we limit the touchscreen draining to 5 updates here */
+                            for (;i != 5; ++i)
+                                if(!fts_read_and_report())
+                                    break;
+                            --drain_touchscreen;
+                        }
+                        else
+                        {
+                            fts_read_and_report();
+                        }
 		}
 		#else
 		{
@@ -1924,10 +1950,10 @@ failed_create_class:
  	#if FTS_GESTRUE_EN
     		fts_write_reg(fts_i2c_client,0xD0,0x00);
 	#endif
-	#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+	#ifdef TPD_CLOSE_POWER_IN_SLEEP
+                printk("[Focal][Touch] Resume by turning touchpad on again");
 		hwPowerOn(TPD_POWER_SOURCE,VOL_3000,"TP");
 	#else
-		
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
 		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
@@ -1948,6 +1974,11 @@ failed_create_class:
     		queue_delayed_work(gtp_esd_check_workqueue, &gtp_esd_check_work, TPD_ESD_CHECK_CIRCLE);
 	#endif
 
+        printk("[Focal][Touch] Draining touchscreen events");
+        /* it is still unclear when the driver misses interrupts
+         * drain_touchscreen defines on how many of the following interrupts
+         * the driver will drain the touchscreen */
+        drain_touchscreen = 3;
 	TPD_DMESG("TPD wake up done\n");
 
  }
@@ -2034,6 +2065,7 @@ failed_create_class:
 	 mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 	 mutex_lock(&i2c_access);
 	#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+                printk("[Focal][Touch] Power Down touchpad");
 		hwPowerDown(TPD_POWER_SOURCE,"TP");
 	#else
 		if ((fts_updateinfo_curr.CHIP_ID==0x59))

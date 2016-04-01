@@ -3328,7 +3328,6 @@ static unsigned int _calc_new_opp_idx(struct mt_cpu_dvfs *p, int new_opp_idx)
             if (new_opp_idx > p->idx_normal_max_opp)
                 new_opp_idx = p->idx_normal_max_opp;
         }
-        cpufreq_dbg("%s(): for early suspend, idx = %d\n", __func__, new_opp_idx);
     }
 
     /* for suspend */

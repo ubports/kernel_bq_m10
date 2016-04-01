@@ -1706,10 +1706,8 @@ long do_fork(unsigned long clone_flags,
 	 * actually start allocating stuff
 	 */
 	if (clone_flags & (CLONE_NEWUSER | CLONE_NEWPID)) {
-		if (clone_flags & (CLONE_THREAD|CLONE_PARENT)) {
-			printk("[%d:%s] fork fail at clone_thread, flags:0x%x\n", current->pid, current->comm, (unsigned int)clone_flags);
+		if (clone_flags & (CLONE_THREAD|CLONE_PARENT))
 			return -EINVAL;
-		}
 	}
 
 	/*
@@ -1755,13 +1753,10 @@ long do_fork(unsigned long clone_flags,
 		}
 
 #ifdef CONFIG_SCHEDSTATS
-        /* mt shceduler profiling*/
-        save_mtproc_info(p, sched_clock());	
-	end_ts = ktime_get();
-        dur_ts = ktime_sub(end_ts,now_ts);
-        printk(KERN_DEBUG "[%d:%s] fork [%d:%s] start fork [%u us] total fork time[%u us] \n", 
-					current->pid, current->comm, p->pid, p->comm, 
-					(unsigned int)ktime_to_us(now_ts),(unsigned int)ktime_to_us(dur_ts));
+		/* mt shceduler profiling*/
+		save_mtproc_info(p, sched_clock());
+		end_ts = ktime_get();
+		dur_ts = ktime_sub(end_ts,now_ts);
 #endif
 		wake_up_new_task(p);
 
@@ -1781,7 +1776,6 @@ long do_fork(unsigned long clone_flags,
 #endif
 	} else {
 		nr = PTR_ERR(p);
-		printk("[%d:%s] fork fail:[%p, %d]\n", current->pid, current->comm, p,(int) nr);
 	}
 	return nr;
 }

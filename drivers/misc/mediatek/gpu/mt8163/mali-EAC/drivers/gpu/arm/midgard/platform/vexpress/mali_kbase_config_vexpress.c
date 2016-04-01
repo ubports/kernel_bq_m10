@@ -237,7 +237,7 @@ static void mtk_process_dvfs(struct mtk_dvfs_info * info, mtk_dvfs_action action
 
 	if(action != MTK_DVFS_NOP) {
 			//log status change
-		pr_warn("GPU action: %s, status: %s -> %s, idx: %d -> %d\n", 
+		pr_debug("GPU action: %s, status: %s -> %s, idx: %d -> %d\n", 
 			ACTION_STR(action), 
 			STATUS_STR(last_status), 
 			STATUS_STR(info->status), 
@@ -247,11 +247,11 @@ static void mtk_process_dvfs(struct mtk_dvfs_info * info, mtk_dvfs_action action
 
 
 	if(cur_freq_idx != request_freq_idx){	
-		pr_warn("Try set gpu freq %d , cur idx is %d ", request_freq_idx, cur_freq_idx);
+		pr_debug("Try set gpu freq %d , cur idx is %d ", request_freq_idx, cur_freq_idx);
 		//may fail for thermal protecting 
 		mt_gpufreq_target(request_freq_idx);		
 		cur_freq_idx = mt_gpufreq_get_cur_freq_index();		
-		pr_warn("After set gpu freq, cur idx is %d ", cur_freq_idx);
+		pr_debug("After set gpu freq, cur idx is %d ", cur_freq_idx);
 	}
 
 	//common part :
