@@ -35,11 +35,11 @@ static unsigned int md_sbp_code_default = 0;
 #endif //CONFIG_MTK_MD_SBP_CUSTOM_VALUE
 
 #ifndef CONFIG_MODEM_FIRMWARE_CIP_PATH
-#define CONFIG_MODEM_FIRMWARE_CIP_PATH  "/custom/etc/firmware/"
+#define CONFIG_MODEM_FIRMWARE_CIP_PATH  "/system/custom/etc/firmware/"
 #endif
 
 #ifndef CONFIG_MODEM_FIRMWARE_PATH
-#define CONFIG_MODEM_FIRMWARE_PATH "/etc/firmware/"
+#define CONFIG_MODEM_FIRMWARE_PATH "/system/etc/firmware/"
 #endif
 
 static char * type_str[] = {    [modem_invalid]="invalid", 

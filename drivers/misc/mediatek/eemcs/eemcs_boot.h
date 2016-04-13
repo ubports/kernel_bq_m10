@@ -20,8 +20,8 @@
 #define BOOT_TX_MAX_PKT_LEN         (2095- 255)             // Max Tx packet size of xBoot
 
 
-#define CONFIG_MODEM_FIRMWARE_FOLDER      "/etc/firmware/"
-#define CONFIG_MODEM_FIRMWARE_CIP_FOLDER  "/custom/etc/firmware/"
+#define CONFIG_MODEM_FIRMWARE_FOLDER      "/system/etc/firmware/"
+#define CONFIG_MODEM_FIRMWARE_CIP_FOLDER  "/system/custom/etc/firmware/"
 
 #define EXT_MD_POST_FIX_LEN (20)
 #define MD_INFO_STR_LEN (256)
