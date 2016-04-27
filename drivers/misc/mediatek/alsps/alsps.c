@@ -491,7 +491,7 @@ static ssize_t als_store_delay(struct device* dev, struct device_attribute *attr
 
     if(false == cxt->als_ctl.is_report_input_direct)
     {
-    	mdelay = (int)delay/1000/1000;
+    	mdelay = (int)delay/1000;
     	atomic_set(&alsps_context_obj->delay_als, mdelay);
     }
     cxt->als_ctl.set_delay(delay);
