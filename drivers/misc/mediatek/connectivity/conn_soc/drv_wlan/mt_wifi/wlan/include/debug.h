@@ -297,6 +297,7 @@ extern PINT_8 g_buf_p;
     /*lint -save -e960 Multiple use of '#/##' */
 #define DBGLOG(_Module, _Class, _Fmt) \
 	do { \
+		if (DBG_CLASS_##_Class == DBG_CLASS_ERROR || DBG_CLASS_##_Class == DBG_CLASS_WARN) { \
 		if (aucDebugModule[DBG_##_Module##_IDX] & DBG_CLASS_##_Class) { \
 			if (DBG_CLASS_##_Class == DBG_CLASS_ERROR) { \
 				LOG_FUNC_TIME("[wlan] **Error[%s:%d]-", __FILE__, __LINE__); \
@@ -310,6 +311,7 @@ extern PINT_8 g_buf_p;
 				LOG_FUNC("[wlan] %s: (" #_Module " " #_Class ") ", __func__); \
 			} \
 			LOG_FUNC _Fmt; \
+		} \
 		} \
 	} while (0)
 
@@ -372,6 +374,7 @@ extern PINT_8 g_buf_p;
 #if defined(LINUX)
 #define DBGLOG(_Module, _Class, _Fmt) \
 	do { \
+		if (DBG_CLASS_##_Class == DBG_CLASS_ERROR || DBG_CLASS_##_Class == DBG_CLASS_WARN) { \
 		if (aucDebugModule[DBG_##_Module##_IDX] & DBG_CLASS_##_Class) { \
 			if (DBG_CLASS_##_Class == DBG_CLASS_ERROR) { \
 				LOG_FUNC_TIME("[wlan] **Error[%s:%d]-", __FILE__, __LINE__); \
@@ -385,6 +388,7 @@ extern PINT_8 g_buf_p;
 				LOG_FUNC("[wlan] %s: (" #_Module " " #_Class ") ", __func__); \
 			} \
 		LOG_FUNC _Fmt; \
+		} \
 		} \
 	} while (0)
 #else
