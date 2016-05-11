@@ -619,12 +619,12 @@ static int _disp_primary_path_idle_detect_thread(void* data)
 		
 		ret = wait_event_interruptible(idle_detect_wq, (atomic_read(&idle_detect_flag) != 0));
 		atomic_set(&idle_detect_flag, 0);
-		printk("[ddp_idle]ret=%d\n",ret);
+		//printk("[ddp_idle]ret=%d\n",ret);
 		if (kthread_should_stop())
         {
             break;
         }
-		printk("[ddp_idle]_disp_primary_path_idle_detect end\n");
+		//printk("[ddp_idle]_disp_primary_path_idle_detect end\n");
 	}
 }
 

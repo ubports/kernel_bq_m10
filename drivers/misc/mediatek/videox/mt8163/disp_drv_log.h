@@ -9,7 +9,7 @@ extern unsigned int dprec_error_log_id;
 extern unsigned int dprec_error_log_buflen;
 extern char dprec_error_log_buffer[];
 		
-#define DISPMSG(string, args...) printk("[DISP]"string, ##args)  // default on, important msg, not err
+#define DISPMSG(string, args...) //printk("[DISP]"string, ##args)  // default on, important msg, not err
 #define DISPDBG(string, args...) pr_debug("disp/"string, ##args);
 #define DISPERR  	DISPPR_ERROR
 
@@ -29,7 +29,7 @@ extern char dprec_error_log_buffer[];
 #define DISPFUNC() printk("[DISP]func|%s\n", __func__)  //default on, err msg
 #define DISPDBGFUNC() DISPDBG("[DISP]func|%s\n", __func__)  //default on, err msg
 
-#define DISPCHECK(string, args...) printk("[DISPCHECK]"string, ##args) 
+#define DISPCHECK(string, args...) //printk("[DISPCHECK]"string, ##args) 
 #define DISPPR(string, args...) \
 	do {\
 		dprec_error_log_len = scnprintf(dprec_error_log_buffer, dprec_error_log_buflen, string, ##args); \

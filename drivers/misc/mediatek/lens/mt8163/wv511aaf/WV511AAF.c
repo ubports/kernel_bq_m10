@@ -249,7 +249,7 @@ unsigned int a_u4Command,
 unsigned long a_u4Param)
 {
     long i4RetValue = 0;
-		printk("WV511AAF by lehong!\n");
+    //printk("WV511AAF by lehong!\n");
     switch(a_u4Command)
     {
         case WV511AAFIOC_G_MOTORINFO :

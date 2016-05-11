@@ -15,7 +15,7 @@
 
 #define PWM_ERR(fmt, arg...) printk(KERN_ERR "[PWM] " fmt "\n", ##arg)
 #define PWM_NOTICE(fmt, arg...) printk(KERN_NOTICE "[PWM] " fmt "\n", ##arg)
-#define PWM_MSG(fmt, arg...) printk(KERN_DEBUG "[PWM] " fmt "\n", ##arg)
+#define PWM_MSG(fmt, arg...) pr_debug("[PWM] " fmt "\n", ##arg)
 
 #define pwm_get_reg_base(id) (DISPSYS_PWM0_BASE)
 
@@ -235,8 +235,7 @@ int disp_pwm_set_backlight_cmdq(disp_pwm_id_t id, int level_1024, void *cmdq)
         if (abs_diff < 0) abs_diff = -abs_diff;
         
         if (old_pwm == 0 || level_1024 == 0 || abs_diff > 64) {
-            /* To be printed in UART log */
-            PWM_NOTICE("disp_pwm_set_backlight_cmdq(id = 0x%x, level_1024 = %d), old = %d", id, level_1024, old_pwm);
+            PWM_MSG("disp_pwm_set_backlight_cmdq(id = 0x%x, level_1024 = %d), old = %d", id, level_1024, old_pwm);
         } else {
             PWM_MSG("disp_pwm_set_backlight_cmdq(id = 0x%x, level_1024 = %d), old = %d", id, level_1024, old_pwm);
         }

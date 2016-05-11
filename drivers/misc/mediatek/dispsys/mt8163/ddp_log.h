@@ -9,7 +9,7 @@
 #endif
 
 #define DISP_LOG_D( fmt, args...)   pr_debug("[DDP/"LOG_TAG"]"fmt, ##args)
-#define DISP_LOG_I( fmt, args...)   pr_notice("[DDP/"LOG_TAG"]"fmt, ##args)
+#define DISP_LOG_I( fmt, args...)   pr_debug("[DDP/"LOG_TAG"]"fmt, ##args)
 #define DISP_LOG_W( fmt, args...)   pr_warn("[DDP/"LOG_TAG"]"fmt, ##args)
 #define DISP_LOG_E( fmt, args...)   do{pr_err("[DDP/"LOG_TAG"]error:"fmt, ##args);dprec_logger_pr(DPREC_LOGGER_ERROR, fmt, ##args);}while(0)
 

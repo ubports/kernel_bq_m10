@@ -6,7 +6,7 @@
 #include <mach/mt_spm.h>
 #include <mach/mt_spm_sleep.h>
 
-#define spm_idle_ver(fmt, args...)		pr_info("[SPM-Idle] " fmt, ##args)
+#define spm_idle_ver(fmt, args...)		pr_debug("[SPM-Idle] " fmt, ##args)
 
 /*
  * for Deep Idle

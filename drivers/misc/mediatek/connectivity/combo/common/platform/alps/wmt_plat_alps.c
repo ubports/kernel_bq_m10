@@ -114,7 +114,7 @@ extern int board_sdio_ctrl(unsigned int sdio_port_num, unsigned int on);
 *                            P U B L I C   D A T A
 ********************************************************************************
 */
-UINT32 gWmtDbgLvl = WMT_LOG_INFO;
+UINT32 gWmtDbgLvl = WMT_LOG_WARN;
 INT32 gWmtMergeIfSupport = 0;
 static ENUM_STP_TX_IF_TYPE gCommIfType = STP_MAX_IF_TX;
 

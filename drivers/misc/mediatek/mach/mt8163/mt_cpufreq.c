@@ -221,7 +221,7 @@ extern unsigned int mt_get_cpu_freq(void);
 #define cpufreq_info(fmt, args...)      \
     printk(KERN_NOTICE TAG KERN_CONT fmt, ##args)
 #define cpufreq_dbg(fmt, args...)       \
-    printk(KERN_INFO TAG KERN_CONT fmt, ##args)
+    pr_debug(TAG KERN_CONT fmt, ##args)
 #define cpufreq_ver(fmt, args...)       \
     do {                                \
         if (func_lv_mask)               \

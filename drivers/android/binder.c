@@ -1463,7 +1463,7 @@ static void binder_set_nice(long nice)
 #endif
 	if (min_nice < 20)
 		return;
-	binder_user_error("%d RLIMIT_NICE not set\n", current->pid);
+	//binder_user_error("%d RLIMIT_NICE not set\n", current->pid);
 }
 
 static size_t binder_buffer_size(struct binder_proc *proc,

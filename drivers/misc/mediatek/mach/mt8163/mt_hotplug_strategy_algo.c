@@ -491,7 +491,7 @@ void hps_algo_hmp(void)
      * algo - end
      */
 ALGO_END_WITH_ACTION:
-    hps_warn("(%04lx)(%u)(%u)action end(%u)(%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)\n",
+    hps_debug("(%04lx)(%u)(%u)action end(%u)(%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)\n",
         hps_ctxt.action, little_num_online, big_num_online,
         hps_ctxt.cur_loads, hps_ctxt.cur_tlp, hps_ctxt.cur_iowait, hps_ctxt.cur_nr_heavy_task, 
         hps_ctxt.little_num_limit_thermal, hps_ctxt.big_num_limit_thermal,
@@ -803,7 +803,7 @@ void hps_algo_smp(void)
      * algo - end
      */
 ALGO_END_WITH_ACTION:
-    hps_warn("(%04lx)(%u)action end(%u)(%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)\n",
+    hps_debug("(%04lx)(%u)action end(%u)(%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u) (%u)(%u)(%u)(%u)(%u)\n",
         hps_ctxt.action, little_num_online,
         hps_ctxt.cur_loads, hps_ctxt.cur_tlp, hps_ctxt.cur_iowait, hps_ctxt.cur_nr_heavy_task, 
         hps_ctxt.little_num_limit_thermal, hps_ctxt.little_num_limit_low_battery, hps_ctxt.little_num_limit_ultra_power_saving, hps_ctxt.little_num_limit_power_serv, hps_ctxt.little_num_base_perf_serv, 

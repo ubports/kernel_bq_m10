@@ -76,7 +76,7 @@ extern "C" {
 #define hps_notice(fmt, args...)            pr_notice("[HPS] " fmt, ##args)
 #define hps_info(fmt, args...)              pr_info("[HPS] " fmt, ##args)
 //#define hps_debug(fmt, args...)             pr_debug("[HPS] " fmt, ##args)
-#define hps_debug(fmt, args...)             printk(KERN_DEBUG "[HPS] " fmt, ##args)
+#define hps_debug(fmt, args...)             pr_debug("[HPS] " fmt, ##args)
 //#define hps_debug(fmt, args...)             pr_emerg("[HPS] " fmt, ##args)
 
 #if EN_ISR_LOG

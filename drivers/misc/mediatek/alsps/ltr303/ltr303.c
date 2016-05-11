@@ -1904,7 +1904,6 @@ static int als_get_data(int* value, int* status)
 		{
 			*value= ltr303_get_als_value(ltr303_obj, alsraw);
 			*status = SENSOR_STATUS_ACCURACY_MEDIUM;
-			 APS_ERR("als_get_data *value = %d, *status =%d\n",*value, *status);
 		}
 	}
 

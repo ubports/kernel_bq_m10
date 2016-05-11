@@ -857,7 +857,7 @@ static int fts_report_value(struct ts_event *data)
 	data->touch_point_num=buf[FT_TOUCH_POINT_NUM] & 0x0F;
 
 	data->touch_point = 0;
-	printk("tpd  fts_updateinfo_curr.TPD_MAX_POINTS=%d fts_updateinfo_curr.chihID=%d \n", fts_updateinfo_curr.TPD_MAX_POINTS,fts_updateinfo_curr.CHIP_ID);
+	//printk("tpd  fts_updateinfo_curr.TPD_MAX_POINTS=%d fts_updateinfo_curr.chihID=%d \n", fts_updateinfo_curr.TPD_MAX_POINTS,fts_updateinfo_curr.CHIP_ID);
 	for (i = 0; i < fts_updateinfo_curr.TPD_MAX_POINTS; i++)
 	{
 		pointid = (buf[FTS_TOUCH_ID_POS + FTS_TOUCH_STEP * i]) >> 4;
