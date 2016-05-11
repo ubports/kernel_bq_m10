@@ -23,7 +23,7 @@ extern struct proc_dir_entry * mtk_thermal_get_proc_drv_therm_dir_entry(void);
 static unsigned int interval = 0; /* seconds, 0 : no auto polling */
 static int trip_temp[10] = {120000,110000,100000,90000,80000,70000,65000,60000,55000,50000};
 static struct thermal_zone_device *thz_dev;
-static int mtkts_bts_debug_log = 1;
+static int mtkts_bts_debug_log = 0;
 static int kernelmode = 0;
 static int g_THERMAL_TRIP[10] = {0,0,0,0,0,0,0,0,0,0};
 static int num_trip=0;
